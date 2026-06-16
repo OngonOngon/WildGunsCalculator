@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wild Guns Travel Calculator</title>
+  <style>
+    :root {
+      --bg: #f5eadc;
+      --bg2: #fff7ec;
+      --card: rgba(255, 255, 255, .9);
+      --card2: rgba(255, 255, 255, .66);
+      --card-solid: #fffaf2;
+      --text: #2a2118;
+      --muted: #786b5a;
+      --line: rgba(94, 66, 36, .18);
+      --accent: #d98632;
+      --accent2: #f7c477;
+      --accent-text: #271304;
+      --danger: #b43f3f;
+      --danger-bg: rgba(180, 63, 63, .10);
+      --success: #257b5f;
+      --shadow: 0 26px 80px rgba(72, 48, 20, .18);
+      --radius-xl: 30px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body[data-theme="dark"] {
+      --bg: #0d1523;
+      --bg2: #1a2637;
+      --card: rgba(28, 39, 55, .9);
+      --card2: rgba(20, 30, 46, .72);
+      --card-solid: #1e2a3c;
+      --text: #f8ead7;
+      --muted: #c7b8a6;
+      --line: rgba(255, 237, 213, .16);
+      --accent: #f3a94c;
+      --accent2: #ffd18b;
+      --accent-text: #221305;
+      --danger: #ff8a8a;
+      --danger-bg: rgba(255, 118, 118, .12);
+      --success: #65d6ae;
+      --shadow: 0 30px 90px rgba(0, 0, 0, .38);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(242, 160, 72, .22), transparent 36%),
+        radial-gradient(circle at top right, rgba(55, 113, 145, .20), transparent 32%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      transition: background .25s ease, color .25s ease;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 38px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card2);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.06);
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .02em;
+      font-size: 14px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--accent-text);
+      font-size: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill-button, .tab, .secondary-button {
+      border: 1px solid var(--line);
+      background: var(--card2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 13px;
+      min-height: 42px;
+      cursor: pointer;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+
+    .pill-button:hover, .tab:hover, .secondary-button:hover { transform: translateY(-1px); }
+    .pill-button.active, .tab.active, .secondary-button.active { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--accent-text); border-color: transparent; }
+
+    .flag-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: inline-block;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.18);
+      flex: 0 0 22px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 22px 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(330px, .8fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+    }
+
+    .card-inner { padding: clamp(20px, 3vw, 30px); }
+    .card + .card { margin-top: 18px; }
+
+    h2 { margin: 0 0 8px; font-size: clamp(26px, 3vw, 36px); letter-spacing: -.035em; }
+    h3 { margin: 20px 0 8px; font-size: 18px; }
+    .hint { color: var(--muted); margin: 0; line-height: 1.55; font-weight: 600; }
+    .desc { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); line-height: 1.55; font-weight: 650; }
+    .warn { margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--danger-bg); border: 1px solid rgba(180,63,63,.22); color: var(--danger); font-weight: 800; line-height: 1.45; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.single { grid-template-columns: 1fr; }
+
+    .field label {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      height: 56px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card-solid);
+      color: var(--text);
+      padding: 0 16px;
+      font: 800 18px/1 var(--font);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(217, 134, 50, .16);
+    }
+
+    .big-button {
+      width: 100%;
+      min-height: 74px;
+      border: 0;
+      border-radius: 22px;
+      margin-top: 18px;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--accent-text);
+      font: 950 24px/1 var(--font);
+      box-shadow: 0 18px 34px rgba(217, 134, 50, .22), inset 0 0 0 2px rgba(255,255,255,.36);
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .big-button:hover { transform: translateY(-2px); filter: saturate(1.04); }
+
+    .unit-picker, .artifact-grid, .speed-grid, .matches {
+      display: grid;
+      gap: 10px;
+    }
+
+    .unit-picker { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+    .artifact-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .speed-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+    .unit-option, .artifact-card, .unit-card, .match-card {
+      border: 1px solid var(--line);
+      background: var(--card-solid);
+      border-radius: 18px;
+      padding: 11px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--text);
+      min-height: 74px;
+    }
+
+    .unit-option {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .unit-option:hover { transform: translateY(-1px); }
+    .unit-option.active { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(217, 134, 50, .15); }
+
+    .unit-icon, .artifact-icon, .nation-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: inline-grid;
+      place-items: center;
+      object-fit: contain;
+      background: rgba(0,0,0,.05);
+      border: 1px solid var(--line);
+      flex: 0 0 42px;
+      overflow: hidden;
+    }
+    .artifact-icon { padding: 4px; }
+    .nation-icon { padding: 4px; }
+    .tiny-icon { width: 24px; height: 24px; border-radius: 8px; }
+
+    .unit-title { display:block; font-weight: 950; letter-spacing: -.01em; }
+    .unit-sub { display:block; margin-top: 4px; color: var(--muted); font-weight: 750; font-size: 13px; line-height: 1.25; }
+
+    .artifact-card { align-items: stretch; flex-direction: column; }
+    .artifact-head { display:flex; align-items:center; gap: 10px; }
+    .check-row { display:flex; align-items:center; gap: 10px; margin-top: 8px; }
+    .check-row input { width: 22px; height: 22px; flex: 0 0 22px; }
+    .small-input { width: 100%; height: 48px; font-size: 16px; }
+
+    .result-box {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 26px;
+      background: linear-gradient(135deg, rgba(217,134,50,.13), rgba(53,86,126,.13));
+      min-height: 230px;
+    }
+    .main-result {
+      margin: 0 0 22px;
+      font-size: clamp(44px, 7vw, 76px);
+      font-weight: 1000;
+      letter-spacing: -.06em;
+      color: var(--text);
+    }
+    .result-meta { display:grid; gap: 10px; }
+    .meta-row {
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 11px 14px;
+      background: rgba(0,0,0,.04);
+      font-weight: 850;
+    }
+    .meta-row span:first-child { color: var(--muted); }
+    .error { margin: 0; color: var(--danger); font-weight: 900; line-height: 1.5; }
+    .empty-state { margin: 0; color: var(--muted); font-weight: 750; line-height: 1.5; }
+
+    .match-card { align-items: flex-start; }
+    .match-body { min-width: 0; flex: 1; }
+    .match-top { display:flex; justify-content: space-between; gap: 8px; align-items: center; }
+    .speed-pill {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(37,123,95,.13);
+      color: var(--success);
+      font-weight: 950;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .inline-nation, .inline-artifact {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-weight: 750;
+      margin-top: 6px;
+    }
+    .match-body small { display:block; color: var(--muted); margin-top: 5px; line-height: 1.35; }
+
+    .unit-card { justify-content: space-between; }
+    .unit-card-left { display:flex; align-items:center; gap: 11px; min-width: 0; }
+    .speed-filters { display:flex; flex-wrap: wrap; gap: 9px; margin: 14px 0 18px; }
+
+    .footer { color: var(--muted); text-align: center; margin: 22px 0 0; font-size: 13px; font-weight: 700; }
+    .hide { display: none !important; }
+
+    @media (max-width: 900px) {
+      .hero { align-items: flex-start; flex-direction: column; }
+      .controls { justify-content: flex-start; }
+      .calculator { grid-template-columns: 1fr; }
+      .grid, .grid.three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="app">
+    <header class="hero">
+      <div>
+        <div class="brand"><span class="brand-mark">⚡</span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
+        <h1 data-i18n="title">Čas cesty bez počítání</h1>
+      </div>
+      <div class="controls">
+        <button class="pill-button active" data-lang="cs" type="button" aria-label="Čeština"><span class="flag-icon" id="flagCs"></span> CZ</button>
+        <button class="pill-button" data-lang="en" type="button" aria-label="English"><span class="flag-icon" id="flagEn"></span> EN</button>
+        <button class="pill-button" id="themeToggle" type="button">🌙 <span data-i18n="darkMode">Tmavý režim</span></button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Calculator tabs">
+      <button class="tab active" data-tab="travel" type="button">⏱️ <span data-i18n="tabTravel">Čas cesty</span></button>
+      <button class="tab" data-tab="detect" type="button">🔎 <span data-i18n="tabDetect">Co jede?</span></button>
+      <button class="tab" data-tab="speeds" type="button">📜 <span data-i18n="tabSpeeds">Rychlosti</span></button>
+    </nav>
+
+    <main>
+      <section class="panel active" id="travelPanel">
+        <div class="calculator">
+          <div class="card"><div class="card-inner">
+            <h2 data-i18n="travelTitle">Spočítat čas cesty</h2>
+            <div class="grid">
+              <div class="field"><label data-i18n="startX">Start X</label><input id="fromX" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="startY">Start Y</label><input id="fromY" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="targetX">Cíl X</label><input id="toX" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="targetY">Cíl Y</label><input id="toY" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="serverSpeed">Rychlost serveru</label><input id="serverSpeed" type="number" step="any" min="0.1" value="6"></div>
+              <div class="field"><label data-i18n="nation">Národnost</label><select id="nation"></select></div>
+            </div>
+            <h3 data-i18n="unit">Jednotka</h3>
+            <div class="unit-picker" id="unitPicker"><p class="empty-state" data-i18n="unitHint">Nejdřív vyber národnost, potom jednotku.</p></div>
+            <h3 data-i18n="artifactBoost">Rychlostní artefakty</h3>
+            <div class="artifact-grid" id="travelArtifacts"></div>
+            <button class="big-button" id="calculateTravel" type="button">⚡ <span data-i18n="calculate">Spočítej</span></button>
+            <p class="desc" data-i18n="travelHint">Zadej souřadnice, vyber jednotku a aplikace spočítá, jak dlouho pojede.</p>
+          </div></div>
+
+          <aside class="card"><div class="card-inner">
+            <h2 data-i18n="resultTitle">Výsledek</h2>
+            <p class="hint" data-i18n="resultHint">Výsledek se zobrazí po kliknutí na tlačítko.</p>
+            <div class="result-box" id="travelResult"><p class="empty-state" data-i18n="travelEmpty">Zatím nic spočítaného. Vyplň údaje a klikni na Spočítej.</p></div>
+          </div></aside>
+        </div>
+      </section>
+
+      <section class="panel" id="detectPanel">
+        <div class="calculator">
+          <div class="card"><div class="card-inner">
+            <h2 data-i18n="detectTitle">Co jede?</h2>
+            <div class="grid">
+              <div class="field"><label data-i18n="startX">Start X</label><input id="dFromX" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="startY">Start Y</label><input id="dFromY" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="targetX">Cíl X</label><input id="dToX" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="targetY">Cíl Y</label><input id="dToY" type="number" step="any" inputmode="decimal"></div>
+              <div class="field"><label data-i18n="serverSpeed">Rychlost serveru</label><input id="detectServerSpeed" type="number" step="any" min="0.1" value="6"></div>
+              <div class="field"><label data-i18n="nationFilter">Národnost</label><select id="detectNation"></select></div>
+            </div>
+            <h3 data-i18n="knownTime">Zadaný čas cesty</h3>
+            <div class="grid three">
+              <div class="field"><label data-i18n="hours">Hodiny</label><input id="dHours" type="number" min="0" step="1" value="0"></div>
+              <div class="field"><label data-i18n="minutes">Minuty</label><input id="dMinutes" type="number" min="0" step="1" value="0"></div>
+              <div class="field"><label data-i18n="seconds">Sekundy</label><input id="dSeconds" type="number" min="0" step="1" value="0"></div>
+            </div>
+            <h3 data-i18n="artifactOptions">Artefakty v odhadu</h3>
+            <div class="artifact-card">
+              <div class="check-row"><input id="includeArtifacts" type="checkbox"><label for="includeArtifacts" data-i18n="includeArtifacts">Zahrnout možné rychlostní artefakty</label></div>
+              <div class="field" id="maxTotemsWrap" style="margin-top:12px; display:none;"><label data-i18n="maxTotems">Max. počet Ancestors Totemů v odhadu</label><input class="small-input" id="maxTotems" type="number" min="0" max="10" step="1" value="3"></div>
+            </div>
+            <button class="big-button" id="calculateDetect" type="button">🔎 <span data-i18n="estimate">Spočítej přesnou shodu</span></button>
+            <p class="desc" data-i18n="detectHint">Zadej souřadnice a čas cesty. Aplikace zobrazí pouze jednotky, které přesně odpovídají zadanému času.</p>
+            <p class="warn" data-i18n="artifactWarning">Pozor: odhad neumí započítat jiné změny rychlosti mimo zvolené rychlostní artefakty.</p>
+          </div></div>
+
+          <aside class="card"><div class="card-inner">
+            <h2 data-i18n="resultTitle">Výsledek</h2>
+            <p class="hint" data-i18n="detectResultHint">Bez přesné shody se žádné jednotky nezobrazí.</p>
+            <div class="result-box" id="detectResult"><p class="empty-state" data-i18n="detectEmpty">Vyplň údaje a klikni na Spočítej přesnou shodu.</p></div>
+          </div></aside>
+        </div>
+      </section>
+
+      <section class="panel" id="speedsPanel">
+        <div class="card"><div class="card-inner">
+          <h2 data-i18n="speedsTitle">Přehled rychlostí jednotek</h2>
+          <p class="hint" data-i18n="speedsHint">Přehled je seřazený podle herního manuálu.</p>
+          <div class="speed-filters" id="speedFilters"></div>
+          <div class="speed-grid" id="speedGrid"></div>
+        </div></div>
+      </section>
+    </main>
+
+    <p class="footer" data-i18n="footer">Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.</p>
+  </div>
+
+  <script>
+    const BASE_FACTOR = 120;
+    const ICON_BASE = 'https://themercers.ca/WildGuns/images/';
+    const EPS = 0.000001;
+
+    const nationData = [
+      { id: 'cowboys', en: 'Cowboys', cs: 'Kovbojové', svg: 'cowboy' },
+      { id: 'mexicans', en: 'Mexicans', cs: 'Mexičané', svg: 'sombrero' },
+      { id: 'native', en: 'Native Americans', cs: 'Indiáni', svg: 'headdress' }
+    ];
+
+    const units = [
+      { nation: 'cowboys', en: 'Farmer', cs: 'Farmář', speed: 5, type: 'infantry', icon: 'units/icons/cowb_1.gif' },
+      { nation: 'cowboys', en: 'Soldier', cs: 'Voják', speed: 6, type: 'infantry', icon: 'units/icons/cowb_2.gif' },
+      { nation: 'cowboys', en: 'Trapper', cs: 'Lovec', speed: 16, type: 'infantry', icon: 'units/icons/cowb_3.gif' },
+      { nation: 'cowboys', en: 'Sniper', cs: 'Střelec', speed: 6, type: 'infantry', icon: 'units/icons/cowb_4.gif' },
+      { nation: 'cowboys', en: 'Cowboy', cs: 'Kovboj', speed: 16, type: 'cavalry', icon: 'units/icons/cowb_5.gif' },
+      { nation: 'cowboys', en: 'Swashbuckler', cs: 'Kavalérista', speed: 14, type: 'cavalry', icon: 'units/icons/cowb_6.gif' },
+      { nation: 'cowboys', en: 'Blaster', cs: 'Střelmistr', speed: 4, type: 'artillery', icon: 'units/icons/cowb_7.gif' },
+      { nation: 'cowboys', en: 'Cannon', cs: 'Kanón', speed: 3, type: 'artillery', icon: 'units/icons/cowb_8.gif' },
+      { nation: 'cowboys', en: 'Whiskey Trek', cs: 'Vůz s whisky', speed: 5, type: 'trek', icon: 'units/icons/cowb_9.gif' },
+      { nation: 'cowboys', en: 'Cowboy Settler', cs: 'Kovbojský osadník', speed: 5, type: 'settler', icon: 'units/icons/cowb_10.gif' },
+
+      { nation: 'mexicans', en: 'Poncho', cs: 'Pončo', speed: 6, type: 'infantry', icon: 'units/icons/mex_1.gif' },
+      { nation: 'mexicans', en: 'Pistolero', cs: 'Pistolero', speed: 5, type: 'infantry', icon: 'units/icons/mex_2.gif' },
+      { nation: 'mexicans', en: 'El Mariachi', cs: 'El Mariachi', speed: 7, type: 'infantry', icon: 'units/icons/mex_3.gif' },
+      { nation: 'mexicans', en: 'El Descubridor', cs: 'El Descubridor', speed: 16, type: 'infantry', icon: 'units/icons/mex_4.gif' },
+      { nation: 'mexicans', en: 'Caballeria', cs: 'Caballeria', speed: 14, type: 'cavalry', icon: 'units/icons/mex_5.gif' },
+      { nation: 'mexicans', en: 'Conquistador', cs: 'Conquistador', speed: 14, type: 'cavalry', icon: 'units/icons/mex_6.gif' },
+      { nation: 'mexicans', en: 'Bombolero', cs: 'Bombolero', speed: 4, type: 'artillery', icon: 'units/icons/mex_7.gif' },
+      { nation: 'mexicans', en: 'Cannon', cs: 'Kanón', speed: 3, type: 'artillery', icon: 'units/icons/mex_8.gif' },
+      { nation: 'mexicans', en: 'Tequila Trek', cs: 'Vůz s tequilou', speed: 4, type: 'trek', icon: 'units/icons/mex_9.gif' },
+      { nation: 'mexicans', en: 'Mexican Settler', cs: 'Mexický osadník', speed: 5, type: 'settler', icon: 'units/icons/mex_10.gif' },
+
+      { nation: 'native', en: 'Archer', cs: 'Lučištník', speed: 7, type: 'infantry', icon: 'units/icons/ind_1.gif' },
+      { nation: 'native', en: 'Rifleman', cs: 'Pěšák', speed: 6, type: 'infantry', icon: 'units/icons/ind_2.gif' },
+      { nation: 'native', en: 'Tomahawk Fighter', cs: 'Bojovník s tomahawkem', speed: 7, type: 'infantry', icon: 'units/icons/ind_3.gif' },
+      { nation: 'native', en: 'Scout', cs: 'Zvěd', speed: 13, type: 'infantry', icon: 'units/icons/ind_4.gif' },
+      { nation: 'native', en: 'Mounted Archer', cs: 'Lučištník na koni', speed: 10, type: 'cavalry', icon: 'units/icons/ind_5.gif' },
+      { nation: 'native', en: 'Blunderbuss', cs: 'Válečník na koni', speed: 11, type: 'cavalry', icon: 'units/icons/ind_6.gif' },
+      { nation: 'native', en: 'Fire Fiend', cs: 'Ohnivý démon', speed: 4, type: 'artillery', icon: 'units/icons/ind_7.gif' },
+      { nation: 'native', en: 'Burning Arrow', cs: 'Zápalný šíp', speed: 3, type: 'artillery', icon: 'units/icons/ind_8.gif' },
+      { nation: 'native', en: 'Firewater Trek', cs: 'Vůz s ohnivou vodou', speed: 4, type: 'trek', icon: 'units/icons/ind_9.gif' },
+      { nation: 'native', en: 'Native American Settler', cs: 'Indiánský osadník', speed: 5, type: 'settler', icon: 'units/icons/ind_10.gif' }
+    ];
+
+    const speedArtifacts = [
+      { id: 'lastCommand', en: 'Last Command', cs: 'Last Command', icon: 'artifacts/last_command.png', percent: 20, type: 'infantry', desc: { cs: 'zrychluje pěchotu o 20 %', en: 'increases infantry speed by 20%' } },
+      { id: 'spurs', en: 'Spurs', cs: 'Spurs', icon: 'artifacts/spurs.png', percent: 20, type: 'cavalry', desc: { cs: 'zrychluje jízdu o 20 %', en: 'increases cavalry speed by 20%' } },
+      { id: 'spokes', en: 'Reinforced Spokes', cs: 'Reinforced Spokes', icon: 'artifacts/reinforced_spokes.png', percent: 20, type: 'artillery', desc: { cs: 'zrychluje kanónové/dělostřelecké jednotky o 20 %', en: 'increases cannon/artillery speed by 20%' } }
+    ];
+    const totemArtifact = { id: 'ancestors', en: 'Ancestors Totem', cs: 'Ancestors Totem', icon: 'artifacts/ancestors_totem.png', percent: 30, type: 'all', desc: { cs: 'zrychluje všechny jednotky o 30 % za každý totem', en: 'increases all units by 30% per totem' } };
+
+    const i18n = {
+      cs: {
+        brand: 'Wild Guns kalkulačka', title: 'Čas cesty bez počítání', darkMode: 'Tmavý režim', lightMode: 'Světlý režim', tabTravel: 'Čas cesty', tabDetect: 'Co jede?', tabSpeeds: 'Rychlosti',
+        travelTitle: 'Spočítat čas cesty', travelHint: 'Zadej souřadnice, vyber jednotku a aplikace spočítá, jak dlouho pojede.', startX: 'Start X', startY: 'Start Y', targetX: 'Cíl X', targetY: 'Cíl Y',
+        serverSpeed: 'Rychlost serveru', nation: 'Národnost', unit: 'Jednotka', unitHint: 'Nejdřív vyber národnost, potom jednotku.', artifactBoost: 'Rychlostní artefakty', calculate: 'Spočítej',
+        resultTitle: 'Výsledek', resultHint: 'Výsledek se zobrazí po kliknutí na tlačítko.', travelEmpty: 'Zatím nic spočítaného. Vyplň údaje a klikni na Spočítej.',
+        detectTitle: 'Co jede?', detectHint: 'Zadej souřadnice a čas cesty. Aplikace zobrazí pouze jednotky, které přesně odpovídají zadanému času.',
+        knownTime: 'Zadaný čas cesty', hours: 'Hodiny', minutes: 'Minuty', seconds: 'Sekundy', nationFilter: 'Národnost', estimate: 'Spočítej přesnou shodu', likelyUnits: 'Přesné shody', includeArtifacts: 'Zahrnout možné rychlostní artefakty', maxTotems: 'Max. počet Ancestors Totemů v odhadu', artifactOptions: 'Artefakty v odhadu',
+        detectResultHint: 'Bez přesné shody se žádné jednotky nezobrazí.', detectEmpty: 'Vyplň údaje a klikni na Spočítej přesnou shodu.', artifactWarning: 'Pozor: odhad neumí započítat jiné změny rychlosti mimo zvolené rychlostní artefakty.',
+        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footer: 'Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.',
+        chooseNation: 'Vyber národnost', all: 'Všechny národnosti', noUnit: 'Vyber jednotku',
+        errorFill: 'Vyplň prosím všechny potřebné údaje.', errorSpeed: 'Rychlost serveru musí být větší než 0.', errorTime: 'Zadaný čas musí být větší než 0.', errorDistance: 'Start a cíl jsou stejné, vzdálenost je 0.',
+        time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Přesná odpovídající rychlost', exactMatches: 'Přesné shody', noExactMatches: 'Žádná přesná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', maxTotemHint: 'Totemy se v odhadu zkouší od 0 do zadaného počtu.', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: 'Různé typy artefaktů se počítají dohromady. Stejný typ se nepočítá vícekrát, kromě Ancestors Totemů.'
+      },
+      en: {
+        brand: 'Wild Guns calculator', title: 'Travel time made easy', darkMode: 'Dark mode', lightMode: 'Light mode', tabTravel: 'Travel time', tabDetect: 'What is coming?', tabSpeeds: 'Speeds',
+        travelTitle: 'Calculate travel time', travelHint: 'Enter coordinates, choose a unit, and the app will calculate how long it will travel.', startX: 'Start X', startY: 'Start Y', targetX: 'Target X', targetY: 'Target Y',
+        serverSpeed: 'Server speed', nation: 'Nation', unit: 'Unit', unitHint: 'Choose a nation first, then choose a unit.', artifactBoost: 'Speed artifacts', calculate: 'Calculate',
+        resultTitle: 'Result', resultHint: 'The result appears after clicking the button.', travelEmpty: 'Nothing calculated yet. Fill in the fields and click Calculate.',
+        detectTitle: 'What is coming?', detectHint: 'Enter coordinates and travel time. The app shows only units that exactly match the entered time.',
+        knownTime: 'Entered travel time', hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds', nationFilter: 'Nation', estimate: 'Calculate exact match', likelyUnits: 'Exact matches', includeArtifacts: 'Include possible speed artifacts', maxTotems: 'Max Ancestors Totems in estimate', artifactOptions: 'Artifact options',
+        detectResultHint: 'If there is no exact match, no units will be shown.', detectEmpty: 'Fill in the fields and click Calculate exact match.', artifactWarning: 'Warning: the estimate does not include any speed changes except the selected speed artifacts.',
+        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footer: 'Default server speed is 6x. Calculations use Euclidean distance between coordinates.',
+        chooseNation: 'Choose nation', all: 'All nations', noUnit: 'Choose unit',
+        errorFill: 'Please fill in all required fields.', errorSpeed: 'Server speed must be greater than 0.', errorTime: 'Entered time must be greater than 0.', errorDistance: 'Start and target are the same, distance is 0.',
+        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'Different artifact types are combined. The same type is not counted more than once, except Ancestors Totems.'
+      }
+    };
+
+    let lang = localStorage.getItem('wg-lang') || 'cs';
+    let speedFilter = '__all';
+    let selectedUnitId = '';
+
+    const $ = id => document.getElementById(id);
+    const tr = key => (i18n[lang] && i18n[lang][key]) || key;
+    const unitName = u => u[lang] || u.en;
+    const nationName = id => (nationData.find(n => n.id === id) || {})[lang] || id;
+    const artifactName = a => a[lang] || a.en;
+    const artifactDesc = a => a.desc?.[lang] || a.desc?.en || '';
+    const numberValue = id => Number($(id).value.replace?.(',', '.') ?? $(id).value);
+    const distance = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1);
+    const serverFactor = speed => BASE_FACTOR / speed;
+    const travelMinutes = (dist, speed, srv) => (serverFactor(srv) / speed) * dist;
+    const fmt = (n, digits = 2) => Number(n).toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-US', { maximumFractionDigits: digits });
+    const fmtPrecise = n => Number(n).toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-US', { maximumFractionDigits: 6 });
+    const unitId = u => `${u.nation}|${u.en}|${u.speed}`;
+
+    function formatDuration(totalMinutes) {
+      const totalSeconds = Math.round(totalMinutes * 60);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function imgHtml(src, cls, alt) {
+      if (!src) return `<span class="${cls}">${alt || '?'}</span>`;
+      return `<img class="${cls}" src="${ICON_BASE}${src}" alt="${alt || ''}" loading="lazy" onerror="this.replaceWith(document.createTextNode('${(alt || '?').slice(0,1)}'))">`;
+    }
+    function iconHtml(u, cls = 'unit-icon') { return imgHtml(u.icon, cls, unitName(u)); }
+    function artifactIconHtml(a, cls = 'artifact-icon') { return imgHtml(a.icon, cls, artifactName(a)); }
+
+    function nationSvg(type) {
+      const common = `viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"`;
+      if (type === 'sombrero') return `<svg ${common}><path fill="#f7c66f" d="M8 40c7 9 41 9 48 0-6-4-14-6-24-6S14 36 8 40Z"/><path fill="#d98b35" d="M22 35c2-12 18-12 20 0-4 3-16 3-20 0Z"/><path fill="#8b4c21" d="M12 42c9 5 31 5 40 0 1 4-8 9-20 9s-21-5-20-9Z"/><path fill="#2e7d67" d="M23 36h18v4H23z"/></svg>`;
+      if (type === 'headdress') return `<svg ${common}><path fill="#f5f0dc" d="M18 48c5 5 23 5 28 0-2 7-10 10-14 10s-12-3-14-10Z"/><path fill="#e85445" d="M32 6l5 28H27L32 6Z"/><path fill="#f2c14e" d="M19 10l9 25-9 2-6-22 6-5Zm26 0-9 25 9 2 6-22-6-5Z"/><path fill="#5aa0c8" d="M10 23l17 15-7 5L7 30l3-7Zm44 0L37 38l7 5 13-13-3-7Z"/><path fill="#7a4d31" d="M20 42h24v7H20z"/></svg>`;
+      return `<svg ${common}><path fill="#8b4c21" d="M13 41c8 7 30 7 38 0-4 9-14 13-19 13S17 50 13 41Z"/><path fill="#c58b4a" d="M17 38c4-8 7-18 15-18s11 10 15 18c-8 4-22 4-30 0Z"/><path fill="#3a2720" d="M8 38c12 9 36 9 48 0-3 8-12 12-24 12S11 46 8 38Z"/><path fill="#f2c14e" d="M22 35h20v5H22z"/></svg>`;
+    }
+
+    function nationIconHtml(id, cls = 'nation-icon') {
+      const n = nationData.find(x => x.id === id);
+      return `<span class="${cls}">${nationSvg(n?.svg || 'cowboy')}</span>`;
+    }
+
+    function flagSvg(which) {
+      if (which === 'cs') return `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><clipPath id="c"><circle cx="15" cy="15" r="15"/></clipPath><g clip-path="url(#c)"><path fill="#fff" d="M0 0h30v15H0z"/><path fill="#d7141a" d="M0 15h30v15H0z"/><path fill="#11457e" d="M0 0l16 15L0 30z"/></g></svg>`;
+      return `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><clipPath id="b"><circle cx="15" cy="15" r="15"/></clipPath><g clip-path="url(#b)"><path fill="#012169" d="M0 0h30v30H0z"/><path stroke="#fff" stroke-width="6" d="m0 0 30 30M30 0 0 30"/><path stroke="#C8102E" stroke-width="3.2" d="m0 0 30 30M30 0 0 30"/><path stroke="#fff" stroke-width="10" d="M15 0v30M0 15h30"/><path stroke="#C8102E" stroke-width="6" d="M15 0v30M0 15h30"/></g></svg>`;
+    }
+
+    function multiplierFor(unit, selected) {
+      const bonuses = [];
+      for (let i = 0; i < selected.totems; i++) bonuses.push(totemArtifact.percent / 100);
+      selected.types.forEach(id => {
+        const a = speedArtifacts.find(x => x.id === id);
+        if (a && a.type === unit.type) bonuses.push(a.percent / 100);
+      });
+      return bonuses.reduce((acc, b) => acc * (1 + b), 1);
+    }
+
+    function artifactLabelsFor(unit, selected) {
+      const labels = [];
+      if (selected.totems > 0) labels.push(`${artifactName(totemArtifact)} × ${selected.totems}`);
+      selected.types.forEach(id => {
+        const a = speedArtifacts.find(x => x.id === id);
+        if (a && a.type === unit.type) labels.push(artifactName(a));
+      });
+      return labels;
+    }
+
+    function selectedArtifactState() {
+      const totems = Math.max(0, Math.min(10, Math.floor(numberValue('travelTotems') || 0)));
+      const types = speedArtifacts.filter(a => $(`travel_${a.id}`).checked).map(a => a.id);
+      return { totems, types };
+    }
+
+    function selectedSpeedAndUnit() {
+      if (!selectedUnitId) return null;
+      const [nation, en, speed] = selectedUnitId.split('|');
+      return units.find(u => u.nation === nation && u.en === en && String(u.speed) === String(speed)) || null;
+    }
+
+    function showError(container, message) { container.innerHTML = `<p class="error">${message}</p>`; }
+
+    function fillSelects() {
+      const nation = $('nation');
+      const current = nation.value;
+      nation.innerHTML = `<option value="">${tr('chooseNation')}</option>`;
+      nationData.forEach(n => nation.add(new Option(nationName(n.id), n.id)));
+      nation.value = current && nationData.some(n => n.id === current) ? current : '';
+
+      const detectNation = $('detectNation');
+      const currentDetect = detectNation.value;
+      detectNation.innerHTML = `<option value="__all">${tr('all')}</option>`;
+      nationData.forEach(n => detectNation.add(new Option(nationName(n.id), n.id)));
+      detectNation.value = currentDetect || '__all';
+
+      renderUnitPicker();
+      renderTravelArtifacts();
+      renderSpeedFilters();
+      renderSpeeds();
+    }
+
+    function renderUnitPicker() {
+      const nation = $('nation').value;
+      const wrap = $('unitPicker');
+      const list = nation ? units.filter(u => u.nation === nation) : [];
+      if (!nation) {
+        selectedUnitId = '';
+        wrap.innerHTML = `<p class="empty-state">${tr('unitHint')}</p>`;
+        return;
+      }
+      if (selectedUnitId && !list.some(u => unitId(u) === selectedUnitId)) selectedUnitId = '';
+      wrap.innerHTML = list.map(u => `<button class="unit-option ${unitId(u) === selectedUnitId ? 'active' : ''}" data-unit-id="${unitId(u)}" type="button">
+        ${iconHtml(u)}
+        <span><span class="unit-title">${unitName(u)}</span><span class="unit-sub">${tr('baseSpeed')}: ${u.speed}</span></span>
+      </button>`).join('');
+      wrap.querySelectorAll('[data-unit-id]').forEach(btn => btn.addEventListener('click', () => { selectedUnitId = btn.dataset.unitId; renderUnitPicker(); }));
+    }
+
+    function renderTravelArtifacts() {
+      const wrap = $('travelArtifacts');
+      wrap.innerHTML = `
+        <div class="artifact-card">
+          <div class="artifact-head">${artifactIconHtml(totemArtifact)}<div><span class="unit-title">${artifactName(totemArtifact)}</span><span class="unit-sub">${artifactDesc(totemArtifact)}</span></div></div>
+          <div class="field" style="margin-top:10px"><label>${lang === 'cs' ? 'Počet totemů' : 'Number of Totems'}</label><input class="small-input" id="travelTotems" type="number" min="0" max="10" step="1" value="0"></div>
+        </div>
+        ${speedArtifacts.map(a => `<label class="artifact-card" for="travel_${a.id}">
+          <div class="artifact-head">${artifactIconHtml(a)}<div><span class="unit-title">${artifactName(a)}</span><span class="unit-sub">${artifactDesc(a)}</span></div></div>
+          <div class="check-row"><input id="travel_${a.id}" type="checkbox"><span>${lang === 'cs' ? 'Použít, pokud sedí na typ jednotky' : 'Use if it applies to the unit type'}</span></div>
+        </label>`).join('')}
+        <p class="hint" style="grid-column:1/-1">${tr('additiveNote')}</p>`;
+    }
+
+    function calculateTravel() {
+      const out = $('travelResult');
+      const x1 = numberValue('fromX'), y1 = numberValue('fromY'), x2 = numberValue('toX'), y2 = numberValue('toY'), srv = numberValue('serverSpeed');
+      const unit = selectedSpeedAndUnit();
+      if (![x1, y1, x2, y2, srv].every(Number.isFinite) || !unit) return showError(out, tr('errorFill'));
+      if (srv <= 0) return showError(out, tr('errorSpeed'));
+      const dist = distance(x1, y1, x2, y2);
+      if (dist <= EPS) return showError(out, tr('errorDistance'));
+      const selected = selectedArtifactState();
+      const effSpeed = unit.speed * multiplierFor(unit, selected);
+      const minutes = travelMinutes(dist, effSpeed, srv);
+      const labels = artifactLabelsFor(unit, selected);
+      out.innerHTML = `
+        <p class="main-result">${formatDuration(minutes)}</p>
+        <div class="result-meta">
+          <div class="meta-row"><span>${tr('distance')}</span><span>${fmtPrecise(dist)}</span></div>
+          <div class="meta-row"><span>${tr('selectedUnit')}</span><span style="display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;">${iconHtml(unit, 'tiny-icon')} ${unitName(unit)}</span></div>
+          <div class="meta-row"><span>${tr('baseSpeed')}</span><span>${fmt(unit.speed, 2)}</span></div>
+          <div class="meta-row"><span>${tr('effectiveSpeed')}</span><span>${fmtPrecise(effSpeed)}</span></div>
+          <div class="meta-row"><span>${tr('appliedArtifacts')}</span><span>${labels.length ? labels.join(', ') : tr('noArtifacts')}</span></div>
+        </div>`;
+    }
+
+    function variantList(unit, includeArtifacts, maxTotems) {
+      const variants = [{ unit, effective: unit.speed, labels: [] }];
+      if (!includeArtifacts) return variants;
+      const typeArtifact = speedArtifacts.find(a => a.type === unit.type);
+      for (let t = 0; t <= maxTotems; t++) {
+        const bases = [ { totems: t, types: [] } ];
+        if (typeArtifact) bases.push({ totems: t, types: [typeArtifact.id] });
+        bases.forEach(sel => {
+          if (t === 0 && sel.types.length === 0) return;
+          const effective = unit.speed * multiplierFor(unit, sel);
+          const labels = artifactLabelsFor(unit, sel);
+          variants.push({ unit, effective, labels });
+        });
+      }
+      return variants;
+    }
+
+    function calculateDetect() {
+      const out = $('detectResult');
+      const x1 = numberValue('dFromX'), y1 = numberValue('dFromY'), x2 = numberValue('dToX'), y2 = numberValue('dToY'), srv = numberValue('detectServerSpeed');
+      const h = Number($('dHours').value || 0), m = Number($('dMinutes').value || 0), s = Number($('dSeconds').value || 0);
+      if (![x1, y1, x2, y2, srv, h, m, s].every(Number.isFinite)) return showError(out, tr('errorFill'));
+      if (srv <= 0) return showError(out, tr('errorSpeed'));
+      const enteredMinutes = h * 60 + m + s / 60;
+      if (enteredMinutes <= 0) return showError(out, tr('errorTime'));
+      const dist = distance(x1, y1, x2, y2);
+      if (dist <= EPS) return showError(out, tr('errorDistance'));
+      const requiredSpeed = (serverFactor(srv) * dist) / enteredMinutes;
+      const filter = $('detectNation').value;
+      const includeArtifacts = $('includeArtifacts').checked;
+      const maxTotems = includeArtifacts ? Math.max(0, Math.min(10, Math.floor(numberValue('maxTotems') || 0))) : 0;
+      const matches = units
+        .filter(u => filter === '__all' || u.nation === filter)
+        .flatMap(u => variantList(u, includeArtifacts, maxTotems))
+        .filter(v => Math.abs(v.effective - requiredSpeed) <= 0.0001)
+        .sort((a, b) => a.unit.nation.localeCompare(b.unit.nation) || a.unit.speed - b.unit.speed || unitName(a.unit).localeCompare(unitName(b.unit)));
+
+      const meta = `
+        <div class="result-meta">
+          <div class="meta-row"><span>${tr('calculatedSpeed')}</span><span>${fmtPrecise(requiredSpeed)}</span></div>
+          <div class="meta-row"><span>${tr('distance')}</span><span>${fmtPrecise(dist)}</span></div>
+          <div class="meta-row"><span>${tr('time')}</span><span>${formatDuration(enteredMinutes)}</span></div>
+        </div>`;
+      if (!matches.length) {
+        out.innerHTML = `${meta}<div style="height:14px"></div><p class="error">${tr('noExactMatches')}</p>`;
+        return;
+      }
+      out.innerHTML = `${meta}<div class="matches" style="margin-top:14px"><p class="hint"><strong>${tr('exactMatches')}</strong></p>${matches.map(v => `
+        <div class="match-card">
+          ${iconHtml(v.unit)}
+          <div class="match-body">
+            <div class="match-top"><strong>${unitName(v.unit)}</strong><span class="speed-pill">${tr('speed')}: ${fmtPrecise(v.effective)}</span></div>
+            <small class="inline-nation">${nationIconHtml(v.unit.nation, 'tiny-icon')} ${nationName(v.unit.nation)}</small>
+            <small>${v.labels.length ? `${tr('artifact')}: ${v.labels.join(', ')}` : tr('baseOnly')}</small>
+          </div>
+        </div>`).join('')}</div>`;
+    }
+
+    function renderSpeedFilters() {
+      const wrap = $('speedFilters');
+      const buttons = [`<button class="secondary-button ${speedFilter === '__all' ? 'active' : ''}" data-speed-filter="__all" type="button"><span>${tr('allNations')}</span></button>`]
+        .concat(nationData.map(n => `<button class="secondary-button ${speedFilter === n.id ? 'active' : ''}" data-speed-filter="${n.id}" type="button">${nationIconHtml(n.id, 'tiny-icon')} ${nationName(n.id)}</button>`));
+      wrap.innerHTML = buttons.join('');
+      wrap.querySelectorAll('[data-speed-filter]').forEach(btn => btn.addEventListener('click', () => { speedFilter = btn.dataset.speedFilter; renderSpeedFilters(); renderSpeeds(); }));
+    }
+
+    function renderSpeeds() {
+      const list = units.filter(u => speedFilter === '__all' || u.nation === speedFilter);
+      $('speedGrid').innerHTML = list.map(u => `<div class="unit-card"><div class="unit-card-left">${iconHtml(u)}<div><strong>${unitName(u)}</strong><small class="inline-nation">${nationIconHtml(u.nation, 'tiny-icon')} ${nationName(u.nation)}</small></div></div><div class="speed-pill">${u.speed}</div></div>`).join('');
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr(el.dataset.i18n); });
+      document.querySelectorAll('[data-lang]').forEach(el => el.classList.toggle('active', el.dataset.lang === lang));
+      fillSelects();
+      updateThemeButton();
+    }
+
+    function updateThemeButton() {
+      const btn = $('themeToggle');
+      const dark = document.body.dataset.theme === 'dark';
+      btn.innerHTML = `${dark ? '☀️' : '🌙'} <span>${dark ? tr('lightMode') : tr('darkMode')}</span>`;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      $(`${tab}Panel`).classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $('flagCs').innerHTML = flagSvg('cs');
+      $('flagEn').innerHTML = flagSvg('en');
+      document.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => { lang = btn.dataset.lang; localStorage.setItem('wg-lang', lang); applyLanguage(); }));
+      document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+      $('themeToggle').addEventListener('click', () => { document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('wg-theme', document.body.dataset.theme); updateThemeButton(); });
+      $('nation').addEventListener('change', () => { selectedUnitId = ''; renderUnitPicker(); });
+      $('calculateTravel').addEventListener('click', calculateTravel);
+      $('calculateDetect').addEventListener('click', calculateDetect);
+      $('includeArtifacts').addEventListener('change', () => { $('maxTotemsWrap').style.display = $('includeArtifacts').checked ? 'block' : 'none'; });
+      const savedTheme = localStorage.getItem('wg-theme');
+      if (savedTheme) document.body.dataset.theme = savedTheme;
+      applyLanguage();
+    });
+  </script>
+</body>
+</html>
