@@ -182,8 +182,9 @@
 
     .calculator > aside.card {
       position: sticky;
-      top: 16px;
+      top: 0;
       align-self: start;
+      margin-top: 0;
     }
 
     .card {
@@ -393,6 +394,118 @@
       gap: 6px;
       white-space: nowrap;
     }
+
+    .village-manager {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(0,0,0,.035);
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+    body[data-theme="dark"] .village-manager { background: rgba(255,255,255,.045); }
+    .village-save-grid {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) minmax(150px, .75fr) auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .village-save-grid input,
+    .village-save-grid select { height: 48px; font-size: 15px; }
+    .village-save-grid .secondary-button {
+      justify-content: center;
+      min-height: 48px;
+      padding: 9px 12px;
+      white-space: nowrap;
+    }
+    .village-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 750;
+    }
+    .village-lists {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .village-group-card {
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--card-solid);
+      padding: 12px;
+      min-width: 0;
+    }
+    .village-group-title {
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 950;
+    }
+    .village-list {
+      display: grid;
+      gap: 8px;
+    }
+    .village-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 9px;
+      background: rgba(0,0,0,.035);
+      min-width: 0;
+    }
+    .village-item-main { min-width: 0; }
+    .village-item-name {
+      display: block;
+      font-weight: 950;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .village-item-coords {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .village-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .mini-button {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(0,0,0,.035);
+      color: var(--text);
+      min-height: 30px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font: 900 12px/1 var(--font);
+      white-space: nowrap;
+    }
+    .mini-button:hover { border-color: var(--accent); }
+    .mini-button.danger { color: var(--danger); }
+    .village-message {
+      margin: 0;
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .village-message.error { color: var(--danger); }
+    .village-message.success { color: var(--success); }
+
     .formula-box {
       margin-top: 14px;
       border: 1px solid var(--line);
@@ -531,6 +644,9 @@
       color: var(--muted);
       font-weight: 750;
       margin-top: 6px;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      max-width: 100%;
     }
     .match-body small { display:block; color: var(--muted); margin-top: 5px; line-height: 1.35; }
 
@@ -543,6 +659,7 @@
     .unit-card-left { display:flex; align-items:center; gap: 11px; min-width: 0; }
     .unit-card-text { min-width: 0; display: grid; gap: 3px; }
     .unit-card-text strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unit-card-text .inline-nation { margin-top: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .speed-filters { display:flex; flex-wrap: wrap; gap: 9px; margin: 14px 0 18px; }
     .speed-filters .secondary-button { min-width: 150px; justify-content: center; }
 
@@ -592,6 +709,11 @@
       .meta-row { padding: 10px 12px; }
       .match-unit-icon { width: 96px; height: 96px; border-radius: 22px; }
       .match-card { min-height: 216px; }
+      .unit-card { align-items: flex-start; }
+      .village-save-grid, .village-lists { grid-template-columns: 1fr; }
+      .village-save-grid .secondary-button { width: 100%; }
+      .village-item { grid-template-columns: 1fr; }
+      .village-actions { justify-content: flex-start; }
     }
   </style>
 </head>
@@ -600,7 +722,7 @@
     <header class="hero">
       <div>
         <div class="brand"><span class="brand-mark"><img class="brand-logo" src="https://lobby.wildguns.gameforge.com/favicon.ico" alt="" loading="lazy"></span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
-        <h1 data-i18n="title">Čas cesty bez počítání</h1>
+        <h1 data-i18n="title">Wild Guns kalkulačka časů</h1>
       </div>
       <div class="controls">
         <button class="pill-button active" data-lang="cs" type="button" aria-label="Čeština"><span class="flag-icon" id="flagCs"></span> CZ</button>
@@ -628,6 +750,8 @@
               <div class="field"><label data-i18n="serverSpeed">Rychlost serveru</label><input id="serverSpeed" type="number" step="any" min="0.1" value="6"></div>
               <div class="field"><label data-i18n="nation">Národnost</label><select id="nation"></select></div>
             </div>
+            <h3 data-i18n="savedVillagesTitle">Uložené vesnice</h3>
+            <div class="village-manager" id="travelVillageManager"></div>
             <h3 data-i18n="unit">Jednotka</h3>
             <div class="unit-picker" id="unitPicker"><p class="empty-state" data-i18n="unitHint">Nejdřív vyber národnost, potom jednotku.</p></div>
             <h3 data-i18n="artifactBoost">Rychlostní artefakty</h3>
@@ -666,6 +790,8 @@
               <div class="field"><label data-i18n="serverSpeed">Rychlost serveru</label><input id="detectServerSpeed" type="number" step="any" min="0.1" value="6"></div>
               <div class="field"><label data-i18n="nationFilter">Národnost</label><select id="detectNation"></select></div>
             </div>
+            <h3 data-i18n="savedVillagesTitle">Uložené vesnice</h3>
+            <div class="village-manager" id="detectVillageManager"></div>
             <h3 data-i18n="knownTime">Zadaný čas cesty</h3>
             <div class="grid three">
               <div class="field"><label data-i18n="hours">Hodiny</label><input id="dHours" type="number" min="0" step="1" value="0"></div>
@@ -690,7 +816,6 @@
 
           <aside class="card"><div class="card-inner">
             <h2 data-i18n="resultTitle">Výsledek</h2>
-            <p class="hint" data-i18n="detectResultHint">Bez přesné shody se žádné jednotky nezobrazí.</p>
             <div class="result-box" id="detectResult"><p class="empty-state" data-i18n="detectEmpty">Vyplň údaje a klikni na Spočítej přesnou shodu.</p></div>
           </div></aside>
         </div>
@@ -707,7 +832,7 @@
     </main>
 
     <div class="footer-wrap">
-      <p class="footer-note" data-i18n="footerNote">Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.</p>
+      <p class="footer-note" data-i18n="footerNote">Výchozí rychlost serveru je 6x. S2 v roce 2026 běží 3× rychleji než S1; S1 používá rychlost 2.</p>
       <footer class="footer">
         <span id="footerYear">2026</span>
         <span class="footer-separator">·</span>
@@ -728,7 +853,10 @@
     const BASE_FACTOR = 120;
     const ICON_BASE = 'https://themercers.ca/WildGuns/images/';
     const EPS = 0.000001;
+    const MATCH_TOLERANCE_SECONDS = 1;
     const ALL_NATIONS_EMOJI = '🌍';
+    const VILLAGE_STORAGE_KEY = 'wg-saved-villages-v1';
+    const VILLAGE_GROUPS = ['own', 'targets'];
 
     const nationData = [
       { id: 'cowboys', en: 'Cowboys', cs: 'Kovbojové', emoji: '⭐' },
@@ -780,30 +908,30 @@
 
     const i18n = {
       cs: {
-        brand: 'Wild Guns kalkulačka', title: 'Čas cesty bez počítání', darkMode: 'Tmavý režim', lightMode: 'Světlý režim', tabTravel: 'Čas cesty', tabDetect: 'Co jede?', tabSpeeds: 'Rychlosti',
+        brand: 'Wild Guns kalkulačka', title: 'Wild Guns kalkulačka časů', darkMode: 'Tmavý režim', lightMode: 'Světlý režim', tabTravel: 'Čas cesty', tabDetect: 'Co jede?', tabSpeeds: 'Rychlosti',
         travelTitle: 'Spočítat čas cesty', travelHint: 'Zadej souřadnice, vyber jednotku a aplikace spočítá, jak dlouho pojede.', startX: 'Start X', startY: 'Start Y', targetX: 'Cíl X', targetY: 'Cíl Y',
         serverSpeed: 'Rychlost serveru', nation: 'Národnost', unit: 'Jednotka', unitHint: 'Nejdřív vyber národnost, potom jednotku.', artifactBoost: 'Rychlostní artefakty', calculate: 'Spočítej',
         resultTitle: 'Výsledek', resultHint: 'Výsledek se zobrazí po kliknutí na tlačítko.', travelEmpty: 'Zatím nic spočítaného. Vyplň údaje a klikni na Spočítej.',
         detectTitle: 'Co jede?', detectHint: 'Zadej souřadnice, čas cesty a případně vyber stejné artefakty jako v kalkulačce času. Aplikace zobrazí pouze jednotky, které přesně odpovídají zadanému času.',
         knownTime: 'Zadaný čas cesty', hours: 'Hodiny', minutes: 'Minuty', seconds: 'Sekundy', nationFilter: 'Národnost', estimate: 'Spočítej přesnou shodu', likelyUnits: 'Přesné shody', includeArtifacts: 'Zahrnout možné rychlostní artefakty', maxTotems: 'Max. počet Ancestors Totemů v odhadu', artifactOptions: 'Rychlostní artefakty',
         detectResultHint: 'Bez přesné shody se žádné jednotky nezobrazí.', detectEmpty: 'Vyplň údaje a klikni na Spočítej přesnou shodu.', artifactWarning: 'Pozor: výpočet používá jen zvolené rychlostní artefakty. Jiné změny rychlosti nezapočítává.', stackWarning: 'Autor neví, jak a jestli se artefakty stackují.',
-        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.', footerMadeWithAi: 'Vytvořeno s pomocí AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu',
+        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Výchozí rychlost serveru je 6x. S2 v roce 2026 běží 3× rychleji než S1; S1 používá rychlost 2.', footerMadeWithAi: 'Vytvořeno s pomocí AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu',
         chooseNation: 'Vyber národnost', all: 'Všechny národnosti', noUnit: 'Vyber jednotku',
         errorFill: 'Vyplň prosím všechny potřebné údaje.', errorSpeed: 'Rychlost serveru musí být větší než 0.', errorTime: 'Zadaný čas musí být větší než 0.', errorDistance: 'Start a cíl jsou stejné, vzdálenost je 0.',
-        time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Přesná odpovídající rychlost', exactMatches: 'Přesné shody', noExactMatches: 'Žádná přesná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', maxTotemHint: 'Totemy se v odhadu zkouší od 0 do zadaného počtu.', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: 'Kalkulačka počítá každý artefakt jen jednou.', totemLabel: 'Totem', useArtifact: 'Použít', selectedArtifact: 'Vybráno', formulaTitle: 'Jak se to počítá?', formulaDistanceLabel: 'Vzdálenost:', formulaTravelLabel: 'Čas v minutách:', formulaTravelText: 'vzdálenost × (120 / rychlost serveru) / použitá rychlost jednotky', formulaDetectLabel: 'Přesná odpovídající rychlost:', formulaDetectText: 'vzdálenost × (120 / rychlost serveru) / zadaný čas v minutách', formulaArtifactText: 'Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.'
+        time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Přesná odpovídající rychlost', exactMatches: 'Přesné shody', noExactMatches: 'Žádná přesná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', maxTotemHint: 'Totemy se v odhadu zkouší od 0 do zadaného počtu.', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: '', totemLabel: 'Totem', useArtifact: 'Použít', selectedArtifact: 'Vybráno', formulaTitle: 'Jak se to počítá?', formulaDistanceLabel: 'Vzdálenost:', formulaTravelLabel: 'Čas v minutách:', formulaTravelText: 'vzdálenost × (120 / rychlost serveru) / použitá rychlost jednotky', formulaDetectLabel: 'Přesná odpovídající rychlost:', formulaDetectText: 'vzdálenost × (120 / rychlost serveru) / zadaný čas v minutách', formulaArtifactText: 'Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.', roundingNote: 'Shoda má toleranci 1 sekundy kvůli zaokrouhlení časů.', savedVillagesTitle: 'Uložené vesnice', ownVillages: 'Moje vesnice', targetVillages: 'Cíle / protivníci', villageNamePlaceholder: 'Název vesnice/hráče', villageGroupOwn: 'Moje vesnice', villageGroupTargets: 'Cíle / protivníci', saveStartVillage: 'Uložit start', saveTargetVillage: 'Uložit cíl', fillStart: 'Start', fillTarget: 'Cíl', deleteVillage: 'Smazat', noSavedVillages: 'Zatím nic uloženého.', savedVillagesHint: 'Ukládá se jen v tomto prohlížeči přes localStorage.', villageSaved: 'Vesnice uložena.', villageDeleted: 'Vesnice smazána.', villageNeedName: 'Zadej název.', villageNeedCoords: 'Nejdřív vyplň souřadnice, které chceš uložit.', storageError: 'Ukládání v tomto prohlížeči selhalo.'
       },
       en: {
-        brand: 'Wild Guns calculator', title: 'Travel time made easy', darkMode: 'Dark mode', lightMode: 'Light mode', tabTravel: 'Travel time', tabDetect: 'What\'s coming?', tabSpeeds: 'Speeds',
+        brand: 'Wild Guns calculator', title: 'Wild Guns time calculator', darkMode: 'Dark mode', lightMode: 'Light mode', tabTravel: 'Travel time', tabDetect: 'What\'s coming?', tabSpeeds: 'Speeds',
         travelTitle: 'Calculate travel time', travelHint: 'Enter coordinates, choose a unit, and the app will calculate how long it will travel.', startX: 'Start X', startY: 'Start Y', targetX: 'Target X', targetY: 'Target Y',
         serverSpeed: 'Server speed', nation: 'Nation', unit: 'Unit', unitHint: 'Choose a nation first, then choose a unit.', artifactBoost: 'Speed artifacts', calculate: 'Calculate',
         resultTitle: 'Result', resultHint: 'The result appears after clicking the button.', travelEmpty: 'Nothing calculated yet. Fill in the fields and click Calculate.',
         detectTitle: 'What\'s coming?', detectHint: 'Enter coordinates, travel time, and optionally select the same artifacts as in the travel time calculator. The app shows only units that exactly match the entered time.',
         knownTime: 'Entered travel time', hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds', nationFilter: 'Nation', estimate: 'Calculate exact match', likelyUnits: 'Exact matches', includeArtifacts: 'Include possible speed artifacts', maxTotems: 'Max Ancestors Totems in estimate', artifactOptions: 'Speed artifacts',
         detectResultHint: 'If there is no exact match, no units will be shown.', detectEmpty: 'Fill in the fields and click Calculate exact match.', artifactWarning: 'Warning: the calculation uses only the selected speed artifacts. Other speed changes are not included.', stackWarning: 'The author does not know whether or how artifacts stack.',
-        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'Default server speed is 6x. Calculations use Euclidean distance between coordinates.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
+        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'Default server speed is 6x. S2 in 2026 runs 3× faster than S1; S1 uses speed 2.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
         chooseNation: 'Choose nation', all: 'All nations', noUnit: 'Choose unit',
         errorFill: 'Please fill in all required fields.', errorSpeed: 'Server speed must be greater than 0.', errorTime: 'Entered time must be greater than 0.', errorDistance: 'Start and target are the same, distance is 0.',
-        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'The calculator counts each artifact only once.', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: 'How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Exact matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.', roundingNote: 'Matches are compared by travel time rounded to whole seconds, the same way the calculator displays it.'
+        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: '', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: 'How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Exact matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.', roundingNote: 'Matches use a 1-second tolerance because travel times are rounded/displayed in whole seconds.', savedVillagesTitle: 'Saved villages', ownVillages: 'My villages', targetVillages: 'Targets / enemies', villageNamePlaceholder: 'Village/player name', villageGroupOwn: 'My villages', villageGroupTargets: 'Targets / enemies', saveStartVillage: 'Save start', saveTargetVillage: 'Save target', fillStart: 'Start', fillTarget: 'Target', deleteVillage: 'Delete', noSavedVillages: 'Nothing saved yet.', savedVillagesHint: 'Saved only in this browser using localStorage.', villageSaved: 'Village saved.', villageDeleted: 'Village deleted.', villageNeedName: 'Enter a name.', villageNeedCoords: 'Fill in the coordinates you want to save first.', storageError: 'Saving failed in this browser.'
       }
     };
 
@@ -854,6 +982,185 @@
     function flagSvg(which) {
       if (which === 'cs') return `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><clipPath id="c"><circle cx="15" cy="15" r="15"/></clipPath><g clip-path="url(#c)"><path fill="#fff" d="M0 0h30v15H0z"/><path fill="#d7141a" d="M0 15h30v15H0z"/><path fill="#11457e" d="M0 0l16 15L0 30z"/></g></svg>`;
       return `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><clipPath id="b"><circle cx="15" cy="15" r="15"/></clipPath><g clip-path="url(#b)"><path fill="#012169" d="M0 0h30v30H0z"/><path stroke="#fff" stroke-width="6" d="m0 0 30 30M30 0 0 30"/><path stroke="#C8102E" stroke-width="3.2" d="m0 0 30 30M30 0 0 30"/><path stroke="#fff" stroke-width="10" d="M15 0v30M0 15h30"/><path stroke="#C8102E" stroke-width="6" d="M15 0v30M0 15h30"/></g></svg>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    function coordinateLabel(x, y) {
+      const formatCoord = n => Number.isInteger(Number(n)) ? String(Number(n)) : fmtPrecise(Number(n));
+      return `${formatCoord(x)}|${formatCoord(y)}`;
+    }
+
+    function pointInputIds(prefix, role) {
+      const travel = prefix === 'travel';
+      if (role === 'start') return travel ? ['fromX', 'fromY'] : ['dFromX', 'dFromY'];
+      return travel ? ['toX', 'toY'] : ['dToX', 'dToY'];
+    }
+
+    function getPointFromInputs(prefix, role) {
+      const [xId, yId] = pointInputIds(prefix, role);
+      const x = numberValue(xId);
+      const y = numberValue(yId);
+      return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+    }
+
+    function setPointToInputs(prefix, role, village) {
+      const [xId, yId] = pointInputIds(prefix, role);
+      $(xId).value = village.x;
+      $(yId).value = village.y;
+    }
+
+    function emptyVillageStore() {
+      return { own: [], targets: [] };
+    }
+
+    function normalizeVillageStore(raw) {
+      const store = emptyVillageStore();
+      VILLAGE_GROUPS.forEach(group => {
+        const list = Array.isArray(raw?.[group]) ? raw[group] : [];
+        store[group] = list
+          .map(item => ({
+            id: String(item?.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+            name: String(item?.name || '').trim(),
+            x: Number(item?.x),
+            y: Number(item?.y)
+          }))
+          .filter(item => item.name && Number.isFinite(item.x) && Number.isFinite(item.y));
+      });
+      return store;
+    }
+
+    function loadVillages() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(VILLAGE_STORAGE_KEY) || '{}');
+        return normalizeVillageStore(raw);
+      } catch {
+        return emptyVillageStore();
+      }
+    }
+
+    function storeVillages(data) {
+      localStorage.setItem(VILLAGE_STORAGE_KEY, JSON.stringify(normalizeVillageStore(data)));
+    }
+
+    function villageGroupTitle(group) {
+      return group === 'own' ? tr('ownVillages') : tr('targetVillages');
+    }
+
+    function villageGroupIcon(group) {
+      return group === 'own' ? '🏠' : '🎯';
+    }
+
+    function setVillageMessage(prefix, message, type = 'success') {
+      const el = $(`${prefix}VillageMessage`);
+      if (!el) return;
+      el.textContent = message || '';
+      el.className = `village-message ${type}`;
+      el.classList.toggle('hide', !message);
+    }
+
+    function renderVillageGroup(prefix, group, list) {
+      const items = list.length ? list.map(v => `
+        <div class="village-item">
+          <div class="village-item-main">
+            <span class="village-item-name" title="${escapeAttr(v.name)}">${escapeHtml(v.name)}</span>
+            <span class="village-item-coords">${coordinateLabel(v.x, v.y)}</span>
+          </div>
+          <div class="village-actions">
+            <button class="mini-button" type="button" data-village-use="${prefix}" data-village-group="${group}" data-village-id="${escapeAttr(v.id)}" data-village-role="start">${tr('fillStart')}</button>
+            <button class="mini-button" type="button" data-village-use="${prefix}" data-village-group="${group}" data-village-id="${escapeAttr(v.id)}" data-village-role="target">${tr('fillTarget')}</button>
+            <button class="mini-button danger" type="button" data-village-delete="${prefix}" data-village-group="${group}" data-village-id="${escapeAttr(v.id)}">×</button>
+          </div>
+        </div>`).join('') : `<p class="empty-state">${tr('noSavedVillages')}</p>`;
+      return `
+        <div class="village-group-card">
+          <h4 class="village-group-title"><span aria-hidden="true">${villageGroupIcon(group)}</span><span>${villageGroupTitle(group)}</span></h4>
+          <div class="village-list">${items}</div>
+        </div>`;
+    }
+
+    function renderVillageManager(prefix) {
+      const wrap = $(`${prefix}VillageManager`);
+      if (!wrap) return;
+      const store = loadVillages();
+      wrap.innerHTML = `
+        <div class="village-save-grid">
+          <input id="${prefix}VillageName" type="text" maxlength="40" placeholder="${escapeAttr(tr('villageNamePlaceholder'))}">
+          <select id="${prefix}VillageGroup">
+            <option value="own">${tr('villageGroupOwn')}</option>
+            <option value="targets">${tr('villageGroupTargets')}</option>
+          </select>
+          <button class="secondary-button" type="button" data-village-save="${prefix}" data-village-role="start">${tr('saveStartVillage')}</button>
+          <button class="secondary-button" type="button" data-village-save="${prefix}" data-village-role="target">${tr('saveTargetVillage')}</button>
+        </div>
+        <p class="village-hint">${tr('savedVillagesHint')}</p>
+        <p class="village-message hide" id="${prefix}VillageMessage"></p>
+        <div class="village-lists">
+          ${renderVillageGroup(prefix, 'own', store.own)}
+          ${renderVillageGroup(prefix, 'targets', store.targets)}
+        </div>`;
+      wrap.querySelectorAll(`[data-village-save="${prefix}"]`).forEach(btn => {
+        btn.addEventListener('click', () => saveVillageFromInputs(prefix, btn.dataset.villageRole));
+      });
+      wrap.querySelectorAll(`[data-village-use="${prefix}"]`).forEach(btn => {
+        btn.addEventListener('click', () => useSavedVillage(prefix, btn.dataset.villageGroup, btn.dataset.villageId, btn.dataset.villageRole));
+      });
+      wrap.querySelectorAll(`[data-village-delete="${prefix}"]`).forEach(btn => {
+        btn.addEventListener('click', () => deleteSavedVillage(prefix, btn.dataset.villageGroup, btn.dataset.villageId));
+      });
+    }
+
+    function renderVillageManagers() {
+      renderVillageManager('travel');
+      renderVillageManager('detect');
+    }
+
+    function saveVillageFromInputs(prefix, role) {
+      const nameInput = $(`${prefix}VillageName`);
+      const groupSelect = $(`${prefix}VillageGroup`);
+      const name = (nameInput?.value || '').trim();
+      const group = VILLAGE_GROUPS.includes(groupSelect?.value) ? groupSelect.value : 'own';
+      const point = getPointFromInputs(prefix, role);
+      if (!name) return setVillageMessage(prefix, tr('villageNeedName'), 'error');
+      if (!point) return setVillageMessage(prefix, tr('villageNeedCoords'), 'error');
+      try {
+        const store = loadVillages();
+        store[group].push({ id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, name, x: point.x, y: point.y });
+        storeVillages(store);
+        renderVillageManagers();
+        setVillageMessage(prefix, tr('villageSaved'), 'success');
+      } catch {
+        setVillageMessage(prefix, tr('storageError'), 'error');
+      }
+    }
+
+    function findSavedVillage(group, id) {
+      const store = loadVillages();
+      return (store[group] || []).find(v => String(v.id) === String(id)) || null;
+    }
+
+    function useSavedVillage(prefix, group, id, role) {
+      const village = findSavedVillage(group, id);
+      if (!village) return;
+      setPointToInputs(prefix, role, village);
+    }
+
+    function deleteSavedVillage(prefix, group, id) {
+      try {
+        const store = loadVillages();
+        store[group] = (store[group] || []).filter(v => String(v.id) !== String(id));
+        storeVillages(store);
+        renderVillageManagers();
+        setVillageMessage(prefix, tr('villageDeleted'), 'success');
+      } catch {
+        setVillageMessage(prefix, tr('storageError'), 'error');
+      }
     }
 
     function multiplierFor(unit, selected) {
@@ -917,6 +1224,7 @@
       nationData.forEach(n => detectNation.add(new Option(nationSelectLabel(n.id), n.id)));
       detectNation.value = currentDetect || '__all';
 
+      renderVillageManagers();
       renderUnitPicker();
       renderTravelArtifacts();
       renderDetectArtifacts();
@@ -964,8 +1272,7 @@
           <div class="artifact-head">${artifactIconHtml(a)}<div><span class="unit-title">${artifactName(a)}</span><span class="unit-sub">${artifactDesc(a)}</span></div></div>
           <span class="artifact-pick-note">${previousTypes.has(a.id) ? selectedLabel() : tr('useArtifact')}</span>
         </button>`).join('')}
-        <p class="warn stack-warning ${anySelected ? '' : 'hide'}" data-stack-warning-prefix="${prefix}" style="grid-column:1/-1">${tr('stackWarning')}</p>
-        <p class="hint" style="grid-column:1/-1">${tr('additiveNote')}</p>`;
+        <p class="warn stack-warning ${anySelected ? '' : 'hide'}" data-stack-warning-prefix="${prefix}" style="grid-column:1/-1">${tr('stackWarning')}</p>`;
       wrap.querySelectorAll(`[data-artifact-prefix="${prefix}"]`).forEach(btn => {
         btn.addEventListener('click', () => {
           btn.classList.toggle('active');
@@ -1030,9 +1337,12 @@
       const matches = units
         .filter(u => filter === '__all' || u.nation === filter)
         .map(u => selectedVariant(u, selected))
-        .map(v => ({ ...v, roundedSeconds: durationSeconds(travelMinutes(dist, v.effective, srv)) }))
-        .filter(v => v.roundedSeconds === enteredSeconds)
-        .sort((a, b) => a.unit.nation.localeCompare(b.unit.nation) || a.unit.speed - b.unit.speed || unitName(a.unit).localeCompare(unitName(b.unit)));
+        .map(v => {
+          const exactSeconds = travelMinutes(dist, v.effective, srv) * 60;
+          return { ...v, exactSeconds, secondDelta: Math.abs(exactSeconds - enteredSeconds) };
+        })
+        .filter(v => v.secondDelta <= MATCH_TOLERANCE_SECONDS + EPS)
+        .sort((a, b) => a.secondDelta - b.secondDelta || a.unit.nation.localeCompare(b.unit.nation) || a.unit.speed - b.unit.speed || unitName(a.unit).localeCompare(unitName(b.unit)));
 
       const meta = `
         <div class="result-meta">
@@ -1066,7 +1376,7 @@
 
     function renderSpeeds() {
       const list = units.filter(u => speedFilter === '__all' || u.nation === speedFilter);
-      $('speedGrid').innerHTML = list.map(u => `<div class="unit-card"><div class="unit-card-left">${iconHtml(u)}<div class="unit-card-text"><strong>${unitName(u)}</strong><small class="inline-nation">${nationIconHtml(u.nation, 'tiny-icon')} ${nationName(u.nation)}</small></div></div><div class="speed-pill">${u.speed}</div></div>`).join('');
+      $('speedGrid').innerHTML = list.map(u => `<div class="unit-card"><div class="unit-card-left">${iconHtml(u)}<div class="unit-card-text"><strong>${unitName(u)}</strong><small class="inline-nation">${nationIconHtml(u.nation, 'tiny-icon')}<span>${nationName(u.nation)}</span></small></div></div><div class="speed-pill">${u.speed}</div></div>`).join('');
     }
 
     function applyLanguage() {
