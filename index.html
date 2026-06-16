@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wild Guns kalkulačka</title>
-  <link rel="icon" type="image/png" href="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" />
-  <link rel="apple-touch-icon" href="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" />
+  <link rel="icon" type="image/x-icon" href="https://lobby.wildguns.gameforge.com/favicon.ico" />
+  <link rel="shortcut icon" href="https://lobby.wildguns.gameforge.com/favicon.ico" />
+  <link rel="apple-touch-icon" href="https://lobby.wildguns.gameforge.com/favicon.ico" />
   <meta name="theme-color" content="#1a2637" />
   <style>
     :root {
@@ -112,9 +113,9 @@
     }
 
     .brand-logo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      width: 86%;
+      height: 86%;
+      object-fit: contain;
       object-position: center;
       display: block;
     }
@@ -501,9 +502,9 @@
       min-width: 0;
       flex-wrap: wrap;
     }
-    .meta-row > span { min-width: 0; overflow-wrap: anywhere; }
-    .meta-row > span:first-child { color: var(--muted); flex: 0 1 auto; }
-    .meta-row > span:last-child { flex: 1 1 120px; text-align: right; }
+    .meta-row span { min-width: 0; overflow-wrap: anywhere; }
+    .meta-row span:first-child { color: var(--muted); flex: 0 1 auto; }
+    .meta-row span:last-child { flex: 1 1 120px; text-align: right; }
     .error { margin: 0; color: var(--danger); font-weight: 900; line-height: 1.5; }
     .empty-state { margin: 0; color: var(--muted); font-weight: 750; line-height: 1.5; }
 
@@ -598,7 +599,7 @@
   <div class="app">
     <header class="hero">
       <div>
-        <div class="brand"><span class="brand-mark"><img class="brand-logo" src="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" alt="" loading="lazy"></span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
+        <div class="brand"><span class="brand-mark"><img class="brand-logo" src="https://lobby.wildguns.gameforge.com/favicon.ico" alt="" loading="lazy"></span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
         <h1 data-i18n="title">Čas cesty bez počítání</h1>
       </div>
       <div class="controls">
@@ -802,7 +803,7 @@
         speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'Default server speed is 6x. Calculations use Euclidean distance between coordinates.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
         chooseNation: 'Choose nation', all: 'All nations', noUnit: 'Choose unit',
         errorFill: 'Please fill in all required fields.', errorSpeed: 'Server speed must be greater than 0.', errorTime: 'Entered time must be greater than 0.', errorDistance: 'Start and target are the same, distance is 0.',
-        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'The calculator counts each artifact only once.', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: 'How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Exact matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.'
+        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'The calculator counts each artifact only once.', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: 'How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Exact matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.', roundingNote: 'Matches are compared by travel time rounded to whole seconds, the same way the calculator displays it.'
       }
     };
 
@@ -827,8 +828,12 @@
     const fmtPrecise = n => Number(n).toLocaleString(lang === 'cs' ? 'cs-CZ' : 'en-US', { maximumFractionDigits: 6 });
     const unitId = u => `${u.nation}|${u.en}|${u.speed}`;
 
+    function durationSeconds(totalMinutes) {
+      return Math.round((totalMinutes + Number.EPSILON) * 60);
+    }
+
     function formatDuration(totalMinutes) {
-      const totalSeconds = Math.round(totalMinutes * 60);
+      const totalSeconds = durationSeconds(totalMinutes);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
@@ -859,16 +864,6 @@
         if (a && a.type === unit.type) bonuses.push(a.percent / 100);
       });
       return bonuses.reduce((acc, b) => acc * (1 + b), 1);
-    }
-
-    function selectedArtifactObjects(selected) {
-      const artifacts = [];
-      if (selected.totems > 0) artifacts.push(totemArtifact);
-      selected.types.forEach(id => {
-        const a = speedArtifacts.find(x => x.id === id);
-        if (a) artifacts.push(a);
-      });
-      return artifacts;
     }
 
     function artifactObjectsFor(unit, selected) {
@@ -1024,18 +1019,19 @@
       const h = Number($('dHours').value || 0), m = Number($('dMinutes').value || 0), s = Number($('dSeconds').value || 0);
       if (![x1, y1, x2, y2, srv, h, m, s].every(Number.isFinite)) return showError(out, tr('errorFill'));
       if (srv <= 0) return showError(out, tr('errorSpeed'));
-      const enteredMinutes = h * 60 + m + s / 60;
-      if (enteredMinutes <= 0) return showError(out, tr('errorTime'));
+      const enteredSeconds = Math.round(h * 3600 + m * 60 + s);
+      const enteredMinutes = enteredSeconds / 60;
+      if (enteredSeconds <= 0) return showError(out, tr('errorTime'));
       const dist = distance(x1, y1, x2, y2);
       if (dist <= EPS) return showError(out, tr('errorDistance'));
       const requiredSpeed = (serverFactor(srv) * dist) / enteredMinutes;
       const filter = $('detectNation').value;
       const selected = selectedArtifactState('detect');
-      const selectedArtifacts = selectedArtifactObjects(selected);
       const matches = units
         .filter(u => filter === '__all' || u.nation === filter)
         .map(u => selectedVariant(u, selected))
-        .filter(v => Math.abs(v.effective - requiredSpeed) <= 0.0001)
+        .map(v => ({ ...v, roundedSeconds: durationSeconds(travelMinutes(dist, v.effective, srv)) }))
+        .filter(v => v.roundedSeconds === enteredSeconds)
         .sort((a, b) => a.unit.nation.localeCompare(b.unit.nation) || a.unit.speed - b.unit.speed || unitName(a.unit).localeCompare(unitName(b.unit)));
 
       const meta = `
@@ -1043,8 +1039,8 @@
           <div class="meta-row"><span>${tr('calculatedSpeed')}</span><span>${fmtPrecise(requiredSpeed)}</span></div>
           <div class="meta-row"><span>${tr('distance')}</span><span>${fmtPrecise(dist)}</span></div>
           <div class="meta-row"><span>${tr('time')}</span><span>${formatDuration(enteredMinutes)}</span></div>
-          <div class="meta-row"><span>${tr('appliedArtifacts')}</span><span>${artifactListHtml(selectedArtifacts)}</span></div>
-        </div>`;
+        </div>
+        <p class="hint" style="margin-top:12px">${tr('roundingNote')}</p>`;
       if (!matches.length) {
         out.innerHTML = `${meta}<div style="height:14px"></div><p class="error">${tr('noExactMatches')}</p>`;
         return;
