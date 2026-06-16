@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wild Guns Travel Calculator</title>
+  <title>Wild Guns kalkulačka</title>
+  <link rel="icon" type="image/png" href="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" />
+  <link rel="apple-touch-icon" href="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" />
+  <meta name="theme-color" content="#1a2637" />
   <style>
     :root {
       --bg: #f5eadc;
@@ -92,15 +95,28 @@
     }
 
     .brand-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 13px;
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
       display: grid;
       place-items: center;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       color: var(--accent-text);
       font-size: 18px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.35),
+        0 0 0 2px rgba(0,0,0,.12),
+        0 8px 16px rgba(0,0,0,.18);
+      overflow: hidden;
+      flex: 0 0 42px;
+    }
+
+    .brand-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
     }
 
     h1 {
@@ -363,6 +379,66 @@
     .artifact-head { display:flex; align-items:center; gap: 10px; min-width: 0; }
     .artifact-head > div { min-width: 0; }
     .artifact-pick-note { margin-top: auto; color: var(--muted); font-weight: 850; font-size: 13px; }
+    .artifact-list {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .artifact-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .formula-box {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(0,0,0,.04);
+      padding: 0;
+      overflow: hidden;
+    }
+    .formula-box summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 13px 15px;
+      font-weight: 950;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .formula-box summary::-webkit-details-marker { display: none; }
+    .formula-box summary::after {
+      content: '›';
+      font-size: 22px;
+      line-height: 1;
+      transition: transform .16s ease;
+    }
+    .formula-box[open] summary::after { transform: rotate(90deg); }
+    .formula-content {
+      border-top: 1px solid var(--line);
+      padding: 13px 15px 15px;
+      color: var(--muted);
+      display: grid;
+      gap: 8px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+    .formula-content code {
+      color: var(--text);
+      background: rgba(0,0,0,.06);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
     .check-row { display:flex; align-items:center; gap: 10px; margin-top: 8px; }
     .check-row input { width: 22px; height: 22px; flex: 0 0 22px; }
     .small-input { width: 100%; height: 48px; font-size: 16px; }
@@ -425,9 +501,9 @@
       min-width: 0;
       flex-wrap: wrap;
     }
-    .meta-row span { min-width: 0; overflow-wrap: anywhere; }
-    .meta-row span:first-child { color: var(--muted); flex: 0 1 auto; }
-    .meta-row span:last-child { flex: 1 1 120px; text-align: right; }
+    .meta-row > span { min-width: 0; overflow-wrap: anywhere; }
+    .meta-row > span:first-child { color: var(--muted); flex: 0 1 auto; }
+    .meta-row > span:last-child { flex: 1 1 120px; text-align: right; }
     .error { margin: 0; color: var(--danger); font-weight: 900; line-height: 1.5; }
     .empty-state { margin: 0; color: var(--muted); font-weight: 750; line-height: 1.5; }
 
@@ -522,7 +598,7 @@
   <div class="app">
     <header class="hero">
       <div>
-        <div class="brand"><span class="brand-mark">⚡</span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
+        <div class="brand"><span class="brand-mark"><img class="brand-logo" src="https://themercers.ca/WildGuns/images/Guide.for.the.Cowboy.Nation.png" alt="" loading="lazy"></span><span data-i18n="brand">Wild Guns kalkulačka</span></div>
         <h1 data-i18n="title">Čas cesty bez počítání</h1>
       </div>
       <div class="controls">
@@ -556,7 +632,17 @@
             <h3 data-i18n="artifactBoost">Rychlostní artefakty</h3>
             <div class="artifact-grid" id="travelArtifacts"></div>
             <p class="desc" data-i18n="travelHint">Zadej souřadnice, vyber jednotku a aplikace spočítá, jak dlouho pojede.</p>
-            <button class="big-button" id="calculateTravel" type="button">⚡ <span data-i18n="calculate">Spočítej</span></button>
+            <details class="formula-box">
+              <summary data-i18n="formulaTitle">Jak se to počítá?</summary>
+              <div class="formula-content">
+                <span data-i18n="formulaDistanceLabel">Vzdálenost:</span>
+                <code>sqrt((x2 - x1)^2 + (y2 - y1)^2)</code>
+                <span data-i18n="formulaTravelLabel">Čas v minutách:</span>
+                <code data-i18n="formulaTravelText">vzdálenost × (120 / rychlost serveru) / použitá rychlost jednotky</code>
+                <span data-i18n="formulaArtifactText">Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.</span>
+              </div>
+            </details>
+            <button class="big-button" id="calculateTravel" type="button">🧮 <span data-i18n="calculate">Spočítej</span></button>
           </div></div>
 
           <aside class="card"><div class="card-inner">
@@ -588,7 +674,17 @@
             <h3 data-i18n="artifactOptions">Rychlostní artefakty</h3>
             <div class="artifact-grid" id="detectArtifacts"></div>
             <p class="desc" data-i18n="detectHint">Zadej souřadnice a čas cesty. Aplikace zobrazí pouze jednotky, které přesně odpovídají zadanému času.</p>
-            <button class="big-button" id="calculateDetect" type="button">🔎 <span data-i18n="estimate">Spočítej přesnou shodu</span></button>
+            <details class="formula-box">
+              <summary data-i18n="formulaTitle">Jak se to počítá?</summary>
+              <div class="formula-content">
+                <span data-i18n="formulaDistanceLabel">Vzdálenost:</span>
+                <code>sqrt((x2 - x1)^2 + (y2 - y1)^2)</code>
+                <span data-i18n="formulaDetectLabel">Přesná odpovídající rychlost:</span>
+                <code data-i18n="formulaDetectText">vzdálenost × (120 / rychlost serveru) / zadaný čas v minutách</code>
+                <span data-i18n="formulaArtifactText">Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.</span>
+              </div>
+            </details>
+            <button class="big-button" id="calculateDetect" type="button">🧮 <span data-i18n="estimate">Spočítej přesnou shodu</span></button>
           </div></div>
 
           <aside class="card"><div class="card-inner">
@@ -614,13 +710,13 @@
       <footer class="footer">
         <span id="footerYear">2026</span>
         <span class="footer-separator">·</span>
-        <span data-i18n="footerMadeWithAi">Vytvořeno s AI</span>
+        <span data-i18n="footerMadeWithAi">Vytvořeno s pomocí AI</span>
         <span class="footer-separator">·</span>
         <span data-i18n="footerUnofficial">Neoficiální fanouškovský nástroj</span>
         <span class="footer-separator">·</span>
-        <a href="https://themercers.ca/WildGuns/" target="_blank" rel="noopener noreferrer">Hachiroku’s Guide</a>
-        <span class="footer-separator">·</span>
         <a href="https://lobby.wildguns.gameforge.com" target="_blank" rel="noopener noreferrer">Wild Guns</a>
+        <span class="footer-separator">·</span>
+        <a href="https://themercers.ca/WildGuns/" target="_blank" rel="noopener noreferrer">Hachiroku’s Guide</a>
         <span class="footer-separator">·</span>
         <a href="https://github.com/OngonOngon/WildGunsCalculator/issues/new" target="_blank" rel="noopener noreferrer" data-i18n="footerReportBug">Nahlásit chybu</a>
       </footer>
@@ -690,10 +786,10 @@
         detectTitle: 'Co jede?', detectHint: 'Zadej souřadnice, čas cesty a případně vyber stejné artefakty jako v kalkulačce času. Aplikace zobrazí pouze jednotky, které přesně odpovídají zadanému času.',
         knownTime: 'Zadaný čas cesty', hours: 'Hodiny', minutes: 'Minuty', seconds: 'Sekundy', nationFilter: 'Národnost', estimate: 'Spočítej přesnou shodu', likelyUnits: 'Přesné shody', includeArtifacts: 'Zahrnout možné rychlostní artefakty', maxTotems: 'Max. počet Ancestors Totemů v odhadu', artifactOptions: 'Rychlostní artefakty',
         detectResultHint: 'Bez přesné shody se žádné jednotky nezobrazí.', detectEmpty: 'Vyplň údaje a klikni na Spočítej přesnou shodu.', artifactWarning: 'Pozor: výpočet používá jen zvolené rychlostní artefakty. Jiné změny rychlosti nezapočítává.', stackWarning: 'Autor neví, jak a jestli se artefakty stackují.',
-        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.', footerMadeWithAi: 'Vytvořeno s AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu',
+        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Výchozí rychlost serveru je 6x. Výpočty používají eukleidovskou vzdálenost mezi souřadnicemi.', footerMadeWithAi: 'Vytvořeno s pomocí AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu',
         chooseNation: 'Vyber národnost', all: 'Všechny národnosti', noUnit: 'Vyber jednotku',
         errorFill: 'Vyplň prosím všechny potřebné údaje.', errorSpeed: 'Rychlost serveru musí být větší než 0.', errorTime: 'Zadaný čas musí být větší než 0.', errorDistance: 'Start a cíl jsou stejné, vzdálenost je 0.',
-        time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Přesná odpovídající rychlost', exactMatches: 'Přesné shody', noExactMatches: 'Žádná přesná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', maxTotemHint: 'Totemy se v odhadu zkouší od 0 do zadaného počtu.', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: 'Kalkulačka počítá každý artefakt jen jednou.', totemLabel: 'Totem', useArtifact: 'Použít', selectedArtifact: 'Vybráno'
+        time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Přesná odpovídající rychlost', exactMatches: 'Přesné shody', noExactMatches: 'Žádná přesná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', maxTotemHint: 'Totemy se v odhadu zkouší od 0 do zadaného počtu.', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: 'Kalkulačka počítá každý artefakt jen jednou.', totemLabel: 'Totem', useArtifact: 'Použít', selectedArtifact: 'Vybráno', formulaTitle: 'Jak se to počítá?', formulaDistanceLabel: 'Vzdálenost:', formulaTravelLabel: 'Čas v minutách:', formulaTravelText: 'vzdálenost × (120 / rychlost serveru) / použitá rychlost jednotky', formulaDetectLabel: 'Přesná odpovídající rychlost:', formulaDetectText: 'vzdálenost × (120 / rychlost serveru) / zadaný čas v minutách', formulaArtifactText: 'Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.'
       },
       en: {
         brand: 'Wild Guns calculator', title: 'Travel time made easy', darkMode: 'Dark mode', lightMode: 'Light mode', tabTravel: 'Travel time', tabDetect: 'What\'s coming?', tabSpeeds: 'Speeds',
@@ -703,10 +799,10 @@
         detectTitle: 'What\'s coming?', detectHint: 'Enter coordinates, travel time, and optionally select the same artifacts as in the travel time calculator. The app shows only units that exactly match the entered time.',
         knownTime: 'Entered travel time', hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds', nationFilter: 'Nation', estimate: 'Calculate exact match', likelyUnits: 'Exact matches', includeArtifacts: 'Include possible speed artifacts', maxTotems: 'Max Ancestors Totems in estimate', artifactOptions: 'Speed artifacts',
         detectResultHint: 'If there is no exact match, no units will be shown.', detectEmpty: 'Fill in the fields and click Calculate exact match.', artifactWarning: 'Warning: the calculation uses only the selected speed artifacts. Other speed changes are not included.', stackWarning: 'The author does not know whether or how artifacts stack.',
-        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'Default server speed is 6x. Calculations use Euclidean distance between coordinates.', footerMadeWithAi: 'Made with AI', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
+        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'Default server speed is 6x. Calculations use Euclidean distance between coordinates.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
         chooseNation: 'Choose nation', all: 'All nations', noUnit: 'Choose unit',
         errorFill: 'Please fill in all required fields.', errorSpeed: 'Server speed must be greater than 0.', errorTime: 'Entered time must be greater than 0.', errorDistance: 'Start and target are the same, distance is 0.',
-        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'The calculator counts each artifact only once.', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected'
+        time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Exact matching speed', exactMatches: 'Exact matches', noExactMatches: 'No exact match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', maxTotemHint: 'The estimate checks Totems from 0 up to the entered number.', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: 'The calculator counts each artifact only once.', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: 'How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Exact matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.'
       }
     };
 
@@ -765,14 +861,38 @@
       return bonuses.reduce((acc, b) => acc * (1 + b), 1);
     }
 
-    function artifactLabelsFor(unit, selected) {
-      const labels = [];
-      if (selected.totems > 0) labels.push(artifactName(totemArtifact));
+    function selectedArtifactObjects(selected) {
+      const artifacts = [];
+      if (selected.totems > 0) artifacts.push(totemArtifact);
       selected.types.forEach(id => {
         const a = speedArtifacts.find(x => x.id === id);
-        if (a && a.type === unit.type) labels.push(artifactName(a));
+        if (a) artifacts.push(a);
       });
-      return labels;
+      return artifacts;
+    }
+
+    function artifactObjectsFor(unit, selected) {
+      const artifacts = [];
+      if (selected.totems > 0) artifacts.push(totemArtifact);
+      selected.types.forEach(id => {
+        const a = speedArtifacts.find(x => x.id === id);
+        if (a && a.type === unit.type) artifacts.push(a);
+      });
+      return artifacts;
+    }
+
+    function artifactLabelsFor(unit, selected) {
+      return artifactObjectsFor(unit, selected).map(artifactName);
+    }
+
+    function artifactListHtml(artifacts) {
+      if (!artifacts.length) return tr('noArtifacts');
+      return `<span class="artifact-list">${artifacts.map(a => `<span class="artifact-chip">${artifactIconHtml(a, 'tiny-icon artifact-icon')} ${artifactName(a)}</span>`).join('')}</span>`;
+    }
+
+    function matchArtifactListHtml(artifacts) {
+      if (!artifacts.length) return tr('baseOnly');
+      return `${tr('artifact')}: <span class="artifact-list">${artifacts.map(a => `<span class="artifact-chip">${artifactIconHtml(a, 'tiny-icon artifact-icon')} ${artifactName(a)}</span>`).join('')}</span>`;
     }
 
     function selectedArtifactState(prefix = 'travel') {
@@ -880,7 +1000,7 @@
       const selected = selectedArtifactState('travel');
       const effSpeed = unit.speed * multiplierFor(unit, selected);
       const minutes = travelMinutes(dist, effSpeed, srv);
-      const labels = artifactLabelsFor(unit, selected);
+      const artifacts = artifactObjectsFor(unit, selected);
       out.innerHTML = `
         <p class="main-result">${formatDuration(minutes)}</p>
         <div class="result-meta">
@@ -888,14 +1008,14 @@
           <div class="meta-row"><span>${tr('selectedUnit')}</span><span style="display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;">${iconHtml(unit, 'tiny-icon')} ${unitName(unit)}</span></div>
           <div class="meta-row"><span>${tr('baseSpeed')}</span><span>${fmt(unit.speed, 2)}</span></div>
           <div class="meta-row"><span>${tr('effectiveSpeed')}</span><span>${fmtPrecise(effSpeed)}</span></div>
-          <div class="meta-row"><span>${tr('appliedArtifacts')}</span><span>${labels.length ? labels.join(', ') : tr('noArtifacts')}</span></div>
+          <div class="meta-row"><span>${tr('appliedArtifacts')}</span><span>${artifactListHtml(artifacts)}</span></div>
         </div>`;
     }
 
     function selectedVariant(unit, selected) {
       const effective = unit.speed * multiplierFor(unit, selected);
-      const labels = artifactLabelsFor(unit, selected);
-      return { unit, effective, labels };
+      const artifacts = artifactObjectsFor(unit, selected);
+      return { unit, effective, artifacts };
     }
 
     function calculateDetect() {
@@ -911,6 +1031,7 @@
       const requiredSpeed = (serverFactor(srv) * dist) / enteredMinutes;
       const filter = $('detectNation').value;
       const selected = selectedArtifactState('detect');
+      const selectedArtifacts = selectedArtifactObjects(selected);
       const matches = units
         .filter(u => filter === '__all' || u.nation === filter)
         .map(u => selectedVariant(u, selected))
@@ -922,6 +1043,7 @@
           <div class="meta-row"><span>${tr('calculatedSpeed')}</span><span>${fmtPrecise(requiredSpeed)}</span></div>
           <div class="meta-row"><span>${tr('distance')}</span><span>${fmtPrecise(dist)}</span></div>
           <div class="meta-row"><span>${tr('time')}</span><span>${formatDuration(enteredMinutes)}</span></div>
+          <div class="meta-row"><span>${tr('appliedArtifacts')}</span><span>${artifactListHtml(selectedArtifacts)}</span></div>
         </div>`;
       if (!matches.length) {
         out.innerHTML = `${meta}<div style="height:14px"></div><p class="error">${tr('noExactMatches')}</p>`;
@@ -933,7 +1055,7 @@
           <div class="match-hero">${iconHtml(v.unit, 'match-unit-icon')}</div>
           <div class="match-card-info">
             <small class="inline-nation">${nationIconHtml(v.unit.nation, 'tiny-icon')} ${nationName(v.unit.nation)}</small>
-            <small>${v.labels.length ? `${tr('artifact')}: ${v.labels.join(', ')}` : tr('baseOnly')}</small>
+            <small>${matchArtifactListHtml(v.artifacts)}</small>
           </div>
         </div>`).join('')}</div>`;
     }
