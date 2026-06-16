@@ -8,6 +8,8 @@
   <link rel="shortcut icon" href="https://lobby.wildguns.gameforge.com/favicon.ico" />
   <link rel="apple-touch-icon" href="https://lobby.wildguns.gameforge.com/favicon.ico" />
   <meta name="theme-color" content="#1a2637" />
+  <script data-goatcounter="https://ongon.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
   <style>
     :root {
       --bg: #f5eadc;
@@ -395,7 +397,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      white-space: nowrap;
+      white-space: normal;
+      min-width: 0;
     }
     .artifact-chip .artifact-icon.tiny-icon {
       box-shadow:
@@ -653,9 +656,9 @@
     }
     .result-meta { display:grid; gap: 10px; min-width: 0; }
     .meta-row {
-      display:flex;
-      justify-content: space-between;
-      gap: 8px 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+      gap: 8px 14px;
       align-items: center;
       border: 1px solid var(--line);
       border-radius: 15px;
@@ -663,15 +666,24 @@
       background: rgba(0,0,0,.04);
       font-weight: 850;
       min-width: 0;
-      flex-wrap: wrap;
     }
-    .meta-row span { min-width: 0; overflow-wrap: anywhere; }
-    .meta-row span:first-child { color: var(--muted); flex: 0 1 auto; }
-    .meta-row span:last-child { flex: 1 1 120px; text-align: right; }
-    .meta-row.artifacts-row { justify-content: flex-start; align-items: flex-start; }
-    .meta-row.artifacts-row > span:first-child { flex: 1 1 100%; }
+    .meta-row span {
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-break: normal;
+      hyphens: none;
+    }
+    .meta-row span:first-child { color: var(--muted); }
+    .meta-row span:last-child {
+      justify-self: end;
+      text-align: right;
+      max-width: 100%;
+    }
+    .meta-row.artifacts-row { align-items: flex-start; }
+    .meta-row.artifacts-row > span:first-child { grid-column: 1 / -1; }
     .meta-row.artifacts-row > span:last-child {
-      flex: 1 1 100%;
+      grid-column: 1 / -1;
+      justify-self: start;
       text-align: left;
       display: flex;
       justify-content: flex-start;
@@ -751,6 +763,72 @@
     }
     .footer a:hover { color: var(--text); border-color: var(--accent); }
     .footer-separator { opacity: .62; }
+
+    .analytics-card {
+      width: min(100%, 920px);
+      margin: 18px auto 6px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--card2);
+      box-shadow: 0 12px 34px rgba(0,0,0,.08);
+      text-align: left;
+      overflow: hidden;
+    }
+    .analytics-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .analytics-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+    }
+    .analytics-icon { font-size: 21px; line-height: 1; }
+    .analytics-text {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-weight: 750;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+    .analytics-link {
+      border: 1px solid var(--line);
+      background: var(--card-solid);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      transition: transform .16s ease, border-color .16s ease;
+    }
+    .analytics-link:hover { transform: translateY(-1px); border-color: var(--accent); }
+    .analytics-frame {
+      display: block;
+      width: 100%;
+      height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card-solid);
+    }
+    .analytics-note {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
     .hide { display: none !important; }
 
     @media (max-width: 900px) {
@@ -767,13 +845,17 @@
       .unit-option, .artifact-option, .unit-card, .match-card { border-radius: 16px; }
       .result-box { padding: 16px; border-radius: 20px; }
       .main-result { font-size: clamp(30px, 12vw, 44px); letter-spacing: -.045em; }
-      .meta-row { padding: 10px 12px; }
+      .meta-row { grid-template-columns: 1fr; align-items: start; padding: 10px 12px; }
+      .meta-row span:last-child { justify-self: start; text-align: left; }
       .match-unit-icon { width: 96px; height: 96px; border-radius: 22px; }
       .match-card { min-height: 216px; }
       .unit-card { align-items: flex-start; }
       .village-save-grid, .village-lists { grid-template-columns: 1fr; }
       .village-save-grid .secondary-button { width: 100%; }
       .village-actions { justify-content: flex-start; }
+      .analytics-card { padding: 13px; }
+      .analytics-frame { height: 430px; }
+      .analytics-link { width: 100%; text-align: center; }
     }
   </style>
 </head>
@@ -890,6 +972,17 @@
 
     <div class="footer-wrap">
       <p class="footer-note" data-i18n="footerNote">Na této stránce je výchozí rychlost serveru 6x. S2 v roce 2026 běží 3x rychleji než S1. S1 používá rychlost 2x.</p>
+      <section class="analytics-card" aria-labelledby="analyticsTitle">
+        <div class="analytics-head">
+          <div>
+            <h2 class="analytics-title" id="analyticsTitle"><span class="analytics-icon" aria-hidden="true">📊</span><span data-i18n="analyticsTitle">Statistiky návštěvnosti</span></h2>
+            <p class="analytics-text" data-i18n="analyticsText">Veřejný přehled návštěvnosti z GoatCounteru.</p>
+          </div>
+          <a class="analytics-link" href="https://ongon.goatcounter.com" target="_blank" rel="noopener noreferrer" data-i18n="analyticsOpen">Otevřít statistiky</a>
+        </div>
+        <iframe class="analytics-frame" src="https://ongon.goatcounter.com/?hideui=1" title="GoatCounter visitor statistics" loading="lazy"></iframe>
+        <p class="analytics-note" data-i18n="analyticsNote">Pokud se widget nezobrazí, je potřeba v GoatCounteru povolit veřejný dashboard a vložení z GitHub Pages.</p>
+      </section>
       <footer class="footer">
         <span id="footerYear">2026</span>
         <span class="footer-separator">·</span>
@@ -924,7 +1017,7 @@
     const units = [
       { nation: 'cowboys', en: 'Farmer', cs: 'Farmář', speed: 5, type: 'infantry', icon: 'cowboys/cowboys_farmer_sm.png' },
       { nation: 'cowboys', en: 'Soldier', cs: 'Voják', speed: 6, type: 'infantry', icon: 'cowboys/cowboys_soldier_sm.png' },
-      { nation: 'cowboys', en: 'Trapper', cs: 'Lovec', speed: 17, officialSpeed: 16, type: 'infantry', icon: 'cowboys/cowboys_trapper_sm.png' },
+      { nation: 'cowboys', en: 'Trapper', cs: 'Lovec', speed: 17, officialSpeed: 16, type: 'cavalry', icon: 'cowboys/cowboys_trapper_sm.png' },
       { nation: 'cowboys', en: 'Sniper', cs: 'Střelec', speed: 6, type: 'infantry', icon: 'cowboys/cowboys_sniper_sm.png' },
       { nation: 'cowboys', en: 'Cowboy', cs: 'Kovboj', speed: 16, type: 'cavalry', icon: 'cowboys/cowboys_cowboy_sm.png' },
       { nation: 'cowboys', en: 'Swashbuckler', cs: 'Kavalérista', speed: 14, type: 'cavalry', icon: 'cowboys/cowboys_swashbuckler_sm.png' },
@@ -936,7 +1029,7 @@
       { nation: 'mexicans', en: 'Poncho', cs: 'Pončo', speed: 6, type: 'infantry', icon: 'mexicans/mexicans_poncho_sm.png' },
       { nation: 'mexicans', en: 'Pistolero', cs: 'Pistolero', speed: 5, type: 'infantry', icon: 'mexicans/mexicans_pistolero_sm.png' },
       { nation: 'mexicans', en: 'El Mariachi', cs: 'El Mariachi', speed: 7, type: 'infantry', icon: 'mexicans/mexicans_el_mariachi_sm.png' },
-      { nation: 'mexicans', en: 'El Descubridor', cs: 'El Descubridor', speed: 16, type: 'infantry', icon: 'mexicans/mexicans_el_descubridor_sm.png' },
+      { nation: 'mexicans', en: 'El Descubridor', cs: 'El Descubridor', speed: 16, type: 'cavalry', icon: 'mexicans/mexicans_el_descubridor_sm.png' },
       { nation: 'mexicans', en: 'Caballeria', cs: 'Caballeria', speed: 14, type: 'cavalry', icon: 'mexicans/mexicans_caballeria_sm.png' },
       { nation: 'mexicans', en: 'Conquistador', cs: 'Conquistador', speed: 14, type: 'cavalry', icon: 'mexicans/mexicans_conquistador_sm.png' },
       { nation: 'mexicans', en: 'Bombolero', cs: 'Bombolero', speed: 4, type: 'artillery', icon: 'mexicans/mexicans_bombolero_sm.png' },
@@ -947,7 +1040,7 @@
       { nation: 'native', en: 'Archer', cs: 'Lučištník', speed: 7, type: 'infantry', icon: 'indians/indians_archer_sm.png' },
       { nation: 'native', en: 'Rifleman', cs: 'Pěšák', speed: 6, type: 'infantry', icon: 'indians/indians_rifleman_sm.png' },
       { nation: 'native', en: 'Tomahawk Fighter', cs: 'Bojovník s tomahawkem', speed: 7, type: 'infantry', icon: 'indians/indians_tomahawk_fighter_sm.png' },
-      { nation: 'native', en: 'Scout', cs: 'Zvěd', speed: 13, type: 'infantry', icon: 'indians/indians_scout_sm.png' },
+      { nation: 'native', en: 'Scout', cs: 'Zvěd', speed: 13, type: 'cavalry', icon: 'indians/indians_scout_sm.png' },
       { nation: 'native', en: 'Mounted Archer', cs: 'Lučištník na koni', speed: 10, type: 'cavalry', icon: 'indians/indians_mounted_archer_sm.png' },
       { nation: 'native', en: 'Blunderbuss', cs: 'Válečník na koni', speed: 11, type: 'cavalry', icon: 'indians/indians_blunderbuss_sm.png' },
       { nation: 'native', en: 'Fire Fiend', cs: 'Ohnivý démon', speed: 4, type: 'artillery', icon: 'indians/indians_fire_fiend_sm.png' },
@@ -971,8 +1064,8 @@
         resultTitle: 'Výsledek', resultHint: 'Výsledek se zobrazí po kliknutí na tlačítko.', travelEmpty: 'Zatím nic spočítaného. Vyplň údaje a klikni na Spočítej.',
         detectTitle: 'Co jede?', detectHint: 'Zadej souřadnice, čas cesty a případně vyber stejné artefakty jako v kalkulačce času. Aplikace zobrazí jednotky, které odpovídají zadanému času.',
         knownTime: 'Zadaný čas cesty', hours: 'Hodiny', minutes: 'Minuty', seconds: 'Sekundy', nationFilter: 'Národnost', estimate: 'Spočítej shodu', likelyUnits: 'Shody', artifactOptions: 'Rychlostní artefakty',
-        detectEmpty: 'Vyplň údaje a klikni na Spočítej shodu.', artifactWarning: 'Pozor: výpočet používá jen zvolené rychlostní artefakty. Jiné změny rychlosti nezapočítává.', stackWarning: 'Autor neví, jak a jestli se artefakty stackují. Pokud víš víc, <a href="https://github.com/OngonOngon/WildGunsCalculator/issues/new" target="_blank" rel="noopener noreferrer">nahlas to přes GitHub Issue</a>.',
-        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Na této stránce je výchozí rychlost serveru 6x. S2 v roce 2026 běží 3x rychleji než S1. S1 používá rychlost 2x.', footerMadeWithAi: 'Vytvořeno s pomocí AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu',
+        detectEmpty: 'Vyplň údaje a klikni na Spočítej shodu.', artifactWarning: 'Pozor: výpočet používá jen zvolené rychlostní artefakty. Jiné změny rychlosti nezapočítává.', stackWarning: 'Autor neví, jak a jestli se artefakty stackují, ani na jaké konkrétní jednotky se vztahují. Efekty na typy jednotek jsou odhad. Pokud víš víc nebo najdeš bug, <a href="https://github.com/OngonOngon/WildGunsCalculator/issues/new" target="_blank" rel="noopener noreferrer">nahlas to přes GitHub Issue</a>.',
+        speedsTitle: 'Přehled rychlostí jednotek', speedsHint: 'Přehled je seřazený podle herního manuálu.', allNations: 'Všechny', footerNote: 'Na této stránce je výchozí rychlost serveru 6x. S2 v roce 2026 běží 3x rychleji než S1. S1 používá rychlost 2x.', footerMadeWithAi: 'Vytvořeno s pomocí AI', footerUnofficial: 'Neoficiální fanouškovský nástroj', footerReportBug: 'Nahlásit chybu', analyticsTitle: 'Statistiky návštěvnosti', analyticsText: 'Veřejný přehled návštěvnosti z GoatCounteru.', analyticsOpen: 'Otevřít statistiky', analyticsNote: 'Pokud se widget nezobrazí, je potřeba v GoatCounteru povolit veřejný dashboard a vložení z GitHub Pages.',
         chooseNation: 'Vyber národnost', all: 'Všechny národnosti', noUnit: 'Vyber jednotku',
         errorFill: 'Vyplň prosím všechny potřebné údaje.', errorSpeed: 'Rychlost serveru musí být větší než 0.', errorTime: 'Zadaný čas musí být větší než 0.', errorDistance: 'Start a cíl jsou stejné, vzdálenost je 0.',
         time: 'Čas cesty', distance: 'Vzdálenost', selectedUnit: 'Jednotka', baseSpeed: 'Základní rychlost', effectiveSpeed: 'Použitá rychlost', calculatedSpeed: 'Odpovídající rychlost', exactMatches: 'Shody', noExactMatches: 'Žádná shoda.', artifact: 'Artefakt', appliedArtifacts: 'Použité artefakty', noArtifacts: 'Bez artefaktů', baseOnly: 'bez artefaktů', speed: 'rychlost', serverSpeedShort: 'server', additiveNote: '', totemLabel: 'Totem', useArtifact: 'Použít', selectedArtifact: 'Vybráno', formulaTitle: '💡 Jak se to počítá?', formulaDistanceLabel: 'Vzdálenost:', formulaTravelLabel: 'Čas v minutách:', formulaTravelText: 'vzdálenost × (120 / rychlost serveru) / použitá rychlost jednotky', formulaDetectLabel: 'Odpovídající rychlost:', formulaDetectText: 'vzdálenost × (120 / rychlost serveru) / zadaný čas v minutách', formulaArtifactText: 'Použitá rychlost jednotky je základní rychlost navýšená o vybrané artefakty.',
@@ -985,8 +1078,8 @@
         resultTitle: 'Result', resultHint: 'The result appears after clicking the button.', travelEmpty: 'Nothing calculated yet. Fill in the fields and click Calculate.',
         detectTitle: 'What\'s coming?', detectHint: 'Enter coordinates, travel time, and optionally select the same artifacts as in the travel time calculator. The app shows units that match the entered time.',
         knownTime: 'Entered travel time', hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds', nationFilter: 'Nation', estimate: 'Calculate match', likelyUnits: 'Matches', artifactOptions: 'Speed artifacts',
-        detectEmpty: 'Fill in the fields and click Calculate match.', artifactWarning: 'Warning: the calculation uses only the selected speed artifacts. Other speed changes are not included.', stackWarning: 'The author does not know whether or how artifacts stack. If you know more, <a href="https://github.com/OngonOngon/WildGunsCalculator/issues/new" target="_blank" rel="noopener noreferrer">report it as a GitHub Issue</a>.',
-        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'The default server speed on this page is 6x. S2 in 2026 runs 3x faster than S1. S1 uses speed 2x.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug',
+        detectEmpty: 'Fill in the fields and click Calculate match.', artifactWarning: 'Warning: the calculation uses only the selected speed artifacts. Other speed changes are not included.', stackWarning: 'The author does not know whether or how artifacts stack, or which exact units they apply to. Effects by unit type are estimated. If you know more or find a bug, <a href="https://github.com/OngonOngon/WildGunsCalculator/issues/new" target="_blank" rel="noopener noreferrer">report it as a GitHub Issue</a>.',
+        speedsTitle: 'Unit speed overview', speedsHint: 'The overview is ordered according to the game manual.', allNations: 'All', footerNote: 'The default server speed on this page is 6x. S2 in 2026 runs 3x faster than S1. S1 uses speed 2x.', footerMadeWithAi: 'Built with AI assistance', footerUnofficial: 'Unofficial fan tool', footerReportBug: 'Report bug', analyticsTitle: 'Visitor stats', analyticsText: 'Public GoatCounter visitor overview.', analyticsOpen: 'Open stats', analyticsNote: 'If the widget does not load, enable public dashboard access and GitHub Pages embedding in GoatCounter.',
         chooseNation: 'Choose nation', all: 'All nations', noUnit: 'Choose unit',
         errorFill: 'Please fill in all required fields.', errorSpeed: 'Server speed must be greater than 0.', errorTime: 'Entered time must be greater than 0.', errorDistance: 'Start and target are the same, distance is 0.',
         time: 'Travel time', distance: 'Distance', selectedUnit: 'Unit', baseSpeed: 'Base speed', effectiveSpeed: 'Used speed', calculatedSpeed: 'Matching speed', exactMatches: 'Matches', noExactMatches: 'No match.', artifact: 'Artifact', appliedArtifacts: 'Applied artifacts', noArtifacts: 'No artifacts', baseOnly: 'no artifacts', speed: 'speed', serverSpeedShort: 'server', additiveNote: '', totemLabel: 'Totem', useArtifact: 'Use', selectedArtifact: 'Selected', formulaTitle: '💡 How is it calculated?', formulaDistanceLabel: 'Distance:', formulaTravelLabel: 'Travel time in minutes:', formulaTravelText: 'distance × (120 / server speed) / effective unit speed', formulaDetectLabel: 'Matching speed:', formulaDetectText: 'distance × (120 / server speed) / entered time in minutes', formulaArtifactText: 'Effective unit speed is the base speed increased by the selected artifacts.',
@@ -1086,7 +1179,7 @@
       const [xId, yId] = pointInputIds(prefix, role);
       $(xId).value = village.x;
       $(yId).value = village.y;
-      setSelectedNationFromVillage(prefix, village.nation);
+      if (role === 'start') setSelectedNationFromVillage(prefix, village.nation);
     }
 
     function emptyVillageStore() {
@@ -1407,7 +1500,7 @@
         <p class="main-result">${formatDuration(minutes)}</p>
         <div class="result-meta">
           <div class="meta-row"><span>${tr('distance')}</span><span>${fmtPrecise(dist)}</span></div>
-          <div class="meta-row"><span>${tr('selectedUnit')}</span><span style="display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;">${iconHtml(unit, 'tiny-icon')} ${unitName(unit)}</span></div>
+          <div class="meta-row"><span>${tr('selectedUnit')}</span><span style="display:inline-flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap;max-width:100%;">${iconHtml(unit, 'tiny-icon')} ${unitName(unit)}</span></div>
           <div class="meta-row"><span>${tr('baseSpeed')}</span><span>${fmt(unit.speed, 2)}</span></div>
           <div class="meta-row"><span>${tr('effectiveSpeed')}</span><span>${fmtPrecise(effSpeed)}</span></div>
           <div class="meta-row artifacts-row"><span>${tr('appliedArtifacts')}</span><span>${artifactListHtml(artifacts)}</span></div>
